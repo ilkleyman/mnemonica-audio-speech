@@ -324,11 +324,15 @@ body {
 
   <div class="controls">
     <div class="mode-group">
-      <div class="mode-toggle">
-        <button class="mode-btn active" id="btn-ptc" onclick="toggleMode('pos-to-card')">Pos → Card</button>
-        <button class="mode-btn" id="btn-ctp" onclick="toggleMode('card-to-pos')">Card → Pos</button>
-        <button class="mode-btn" id="btn-bef" onclick="toggleMode('card-before')">Card Before</button>
-        <button class="mode-btn" id="btn-aft" onclick="toggleMode('card-after')">Card After</button>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="btn-ptc" onclick="toggleMode('pos-to-card')">Pos → Card</button>
+          <button class="mode-btn" id="btn-ctp" onclick="toggleMode('card-to-pos')">Card → Pos</button>
+        </div>
+        <div class="mode-toggle">
+          <button class="mode-btn" id="btn-bef" onclick="toggleMode('card-before')">Card Before</button>
+          <button class="mode-btn" id="btn-aft" onclick="toggleMode('card-after')">Card After</button>
+        </div>
       </div>
       <div class="settings-row">
         <div class="range-group">
@@ -435,7 +439,7 @@ body {
   </div>
 
   <div style="text-align:center;margin-top:1.5rem;font-family:'Cinzel',serif;font-size:10px;color:var(--gold-dark);letter-spacing:0.08em;opacity:0.6;">
-    V2 &nbsp;&bull;&nbsp; 12th May 2026
+    V4 &nbsp;&bull;&nbsp; 12th May 2026
   </div>
 
 </div>
@@ -546,28 +550,29 @@ function normalise(str) {
 // ── Answer matching ──────────────────────────────────────────
 
 // All the ways a value might be spoken or returned by STT
+// Includes common STT mishearings e.g. "fire" for "four", "sex" for "six" etc.
 const VALUE_ALIASES = {
-  'A':  ['ace','a'],
-  '2':  ['two','2'],
-  '3':  ['three','3'],
-  '4':  ['four','4','for'],
-  '5':  ['five','5'],
-  '6':  ['six','6'],
-  '7':  ['seven','7'],
-  '8':  ['eight','8','ate'],
-  '9':  ['nine','9'],
-  '10': ['ten','10'],
-  'J':  ['jack','j'],
-  'Q':  ['queen','q'],
-  'K':  ['king','k'],
+  'A':  ['ace','a','as','base','case','face','place','race','space','trace'],
+  '2':  ['two','2','to','too','tu','shoe','through','true'],
+  '3':  ['three','3','free','tree','see'],
+  '4':  ['four','4','for','fore','fire','fur','far','floor','force','fork','ford','fort','foe'],
+  '5':  ['five','5','hive','live','drive','jive','dive','vine'],
+  '6':  ['six','6','sex','sax','sick','mix','fix'],
+  '7':  ['seven','7','heaven','leaven','severn'],
+  '8':  ['eight','8','ate','hate','late','gate','fate','wait','rate','great'],
+  '9':  ['nine','9','fine','mine','line','wine','pine','dine','sign','shine'],
+  '10': ['ten','10','then','den','hen','pen','men'],
+  'J':  ['jack','j','jacks','jake','black','back','hack','lack','pack','rack','sack'],
+  'Q':  ['queen','q','queens','clean','keen','seen','bean','lean','mean','green'],
+  'K':  ['king','k','kings','ring','sing','thing','bring','spring','string'],
 };
 
 // All the ways a suit might be spoken or returned by STT
 const SUIT_ALIASES = {
-  'H': ['hearts','heart','h'],
-  'D': ['diamonds','diamond','d'],
-  'C': ['clubs','club','c'],
-  'S': ['spades','spade','s'],
+  'H': ['hearts','heart','h','hurts','hard','heard','harts','parts','arts','charts'],
+  'D': ['diamonds','diamond','d','dimond','dymond','dimes'],
+  'C': ['clubs','club','c','clumbs','clues','cubs','pubs','tubs'],
+  'S': ['spades','spade','s','space','speeds','shades','trades','blades','grades'],
 };
 
 function normalise(str) {
@@ -588,15 +593,28 @@ function checkAnswer(transcript, card) {
   const heard = normalise(transcript);
 
   // ── Position answer ──
+  // Accept the number spoken in any form, anywhere in the phrase.
+  // e.g. "10", "ten", "it's ten", "position ten", "number ten", "it is ten",
+  //      "i think it's ten", "twenty three", "twenty-three" all match pos 23.
   if (card.qtype === 'card-to-pos') {
     const n = card.pos;
     const numStr = String(n);
     const wordStr = NUM_WORDS[n];
-    // Accept digit, word, or if the heard string contains either
-    if (heard === numStr || heard === wordStr) return true;
-    if (heard.includes(numStr) || heard.includes(wordStr)) return true;
-    // Hyphenated variant e.g. "twenty-three"
-    if (wordStr.includes(' ') && heard.includes(wordStr.replace(' ', ''))) return true;
+
+    // Digit match — whole word boundary so "1" doesn't match inside "21"
+    const digitRe = new RegExp('\\b' + numStr + '\\b');
+    if (digitRe.test(heard)) return true;
+
+    // Word match — whole phrase e.g. "twenty three"
+    const wordRe = new RegExp('\\b' + wordStr.replace(' ', '\\s+') + '\\b');
+    if (wordRe.test(heard)) return true;
+
+    // Hyphenated / run-together variant e.g. "twentythree" or "twenty-three"
+    if (wordStr.includes(' ')) {
+      const compact = wordStr.replace(/\s+/g, '');
+      if (heard.replace(/[-\s]/g, '').includes(compact)) return true;
+    }
+
     return false;
   }
 
