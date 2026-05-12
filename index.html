@@ -25,6 +25,8 @@
   --card-shadow: rgba(0,0,0,0.6);
   --red: #c0392b;
   --black: #1a1a2e;
+  --correct: #2ecc71;
+  --wrong: #e74c3c;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,483 +51,266 @@ body {
 .app { max-width: 560px; margin: 0 auto; }
 
 /* ── Header ── */
-.header {
-  text-align: center;
-  margin-bottom: 1.75rem;
-}
-
+.header { text-align: center; margin-bottom: 1.75rem; }
 .header-title {
-  font-family: 'Cinzel', serif;
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: 0.08em;
-  text-shadow: 0 0 30px rgba(201,168,76,0.4);
-  margin-bottom: 2px;
+  font-family: 'Cinzel', serif; font-size: 26px; font-weight: 700;
+  color: var(--gold); letter-spacing: 0.08em;
+  text-shadow: 0 0 30px rgba(201,168,76,0.4); margin-bottom: 2px;
 }
-
 .header-subtitle {
-  font-size: 13px;
-  color: var(--cream-dim);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-family: 'Cinzel', serif;
-  font-weight: 400;
+  font-size: 13px; color: var(--cream-dim); letter-spacing: 0.15em;
+  text-transform: uppercase; font-family: 'Cinzel', serif; font-weight: 400;
 }
-
 .gold-rule {
-  width: 100%;
-  height: 1px;
+  width: 100%; height: 1px;
   background: linear-gradient(to right, transparent, var(--gold-dark), var(--gold), var(--gold-dark), transparent);
   margin: 0.75rem 0;
 }
 
 /* ── Controls ── */
-.controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 1.25rem;
-}
-
-.mode-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.settings-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 2px;
-}
-
+.controls { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+.mode-group { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.settings-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-top: 2px; }
 .mode-toggle {
-  display: flex;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--gold-dark);
-  border-radius: 6px;
-  overflow: hidden;
+  display: flex; background: rgba(0,0,0,0.3);
+  border: 1px solid var(--gold-dark); border-radius: 6px; overflow: hidden;
 }
-
 .mode-btn {
-  padding: 7px 12px;
-  font-size: 12px;
-  font-family: 'Cinzel', serif;
-  font-weight: 400;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--cream-dim);
-  transition: all 0.2s;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
+  padding: 7px 12px; font-size: 12px; font-family: 'Cinzel', serif; font-weight: 400;
+  background: none; border: none; cursor: pointer; color: var(--cream-dim);
+  transition: all 0.2s; letter-spacing: 0.04em; white-space: nowrap;
 }
-
 .mode-btn:not(:last-child) { border-right: 1px solid var(--gold-dark); }
 .mode-btn.active { background: rgba(201,168,76,0.2); color: var(--gold-light); }
 .mode-btn:hover:not(.active) { color: var(--cream); background: rgba(255,255,255,0.05); }
 
-.range-group {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  color: var(--cream-dim);
-  font-family: 'Cinzel', serif;
-}
-
+.range-group { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--cream-dim); font-family: 'Cinzel', serif; }
 .range-group input[type=number] {
-  width: 50px;
-  padding: 6px 8px;
-  font-size: 13px;
-  font-family: 'Cinzel', serif;
-  border: 1px solid var(--gold-dark);
-  border-radius: 5px;
-  background: rgba(0,0,0,0.3);
-  color: var(--gold-light);
-  text-align: center;
+  width: 50px; padding: 6px 8px; font-size: 13px; font-family: 'Cinzel', serif;
+  border: 1px solid var(--gold-dark); border-radius: 5px;
+  background: rgba(0,0,0,0.3); color: var(--gold-light); text-align: center;
 }
-
 .range-group input[type=number]:focus { outline: none; border-color: var(--gold); }
 
-.delay-group {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  color: var(--cream-dim);
-  font-family: 'Cinzel', serif;
-}
-
+.delay-group { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--cream-dim); font-family: 'Cinzel', serif; }
 .delay-group select {
-  padding: 6px 10px;
-  font-size: 12px;
-  font-family: 'Cinzel', serif;
-  border: 1px solid var(--gold-dark);
-  border-radius: 5px;
-  background: rgba(0,0,0,0.3);
-  color: var(--gold-light);
-  cursor: pointer;
+  padding: 6px 10px; font-size: 12px; font-family: 'Cinzel', serif;
+  border: 1px solid var(--gold-dark); border-radius: 5px;
+  background: rgba(0,0,0,0.3); color: var(--gold-light); cursor: pointer;
 }
+.wicked-divider { width: 1px; height: 22px; background: var(--gold-dark); opacity: 0.4; }
 
-.wicked-divider {
-  width: 1px;
-  height: 22px;
-  background: var(--gold-dark);
-  opacity: 0.4;
+/* ── Voice Mode Toggle ── */
+.voice-row {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 4px;
 }
+.voice-toggle-wrap {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Cinzel', serif; font-size: 12px; color: var(--cream-dim);
+}
+.toggle-switch {
+  position: relative; width: 40px; height: 22px; cursor: pointer;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dark); border-radius: 22px; transition: 0.3s;
+}
+.toggle-slider:before {
+  content: ''; position: absolute; width: 16px; height: 16px;
+  left: 2px; top: 2px; background: var(--gold-dark);
+  border-radius: 50%; transition: 0.3s;
+}
+.toggle-switch input:checked + .toggle-slider { background: rgba(46,204,113,0.2); border-color: var(--correct); }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); background: var(--correct); }
+.voice-label-text { color: var(--cream-dim); }
+.voice-label-text.on { color: var(--correct); }
 
 .action-btn {
-  padding: 6px 14px;
-  font-size: 12px;
-  font-family: 'Cinzel', serif;
-  border: 1px solid var(--gold-dark);
-  border-radius: 5px;
-  background: rgba(201,168,76,0.1);
-  color: var(--gold);
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.05em;
+  padding: 6px 14px; font-size: 12px; font-family: 'Cinzel', serif;
+  border: 1px solid var(--gold-dark); border-radius: 5px;
+  background: rgba(201,168,76,0.1); color: var(--gold); cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.05em;
 }
-
 .action-btn:hover { background: rgba(201,168,76,0.25); border-color: var(--gold); }
 
 /* ── Progress ── */
 .progress-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.75rem;
-  margin-bottom: 1.5rem;
-  padding: 0 4px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 0.75rem; margin-bottom: 1.5rem; padding: 0 4px;
 }
-
 .progress { font-size: 13px; color: var(--cream-dim); font-family: 'Cinzel', serif; }
 .progress strong { color: var(--gold); font-weight: 600; }
-
 .round-badge {
-  font-size: 11px;
-  font-family: 'Cinzel', serif;
-  color: var(--gold-dark);
-  background: rgba(201,168,76,0.1);
-  border: 1px solid var(--gold-dark);
-  border-radius: 999px;
-  padding: 3px 10px;
-  letter-spacing: 0.05em;
+  font-size: 11px; font-family: 'Cinzel', serif; color: var(--gold-dark);
+  background: rgba(201,168,76,0.1); border: 1px solid var(--gold-dark);
+  border-radius: 999px; padding: 3px 10px; letter-spacing: 0.05em;
 }
 
 /* ── Card ── */
 .card-scene {
-  display: flex;
-  justify-content: center;
-  perspective: 1200px;
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.7));
+  display: flex; justify-content: center; perspective: 1200px;
+  margin-bottom: 1rem; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.7));
 }
-
 .card-inner {
-  position: relative;
-  width: 220px;
-  height: 320px;
-  transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.4,0,0.2,1);
+  position: relative; width: 220px; height: 320px;
+  transform-style: preserve-3d; transition: transform 0.65s cubic-bezier(0.4,0,0.2,1);
 }
-
 .card-scene.flipped .card-inner { transform: rotateY(180deg); }
-
 .card-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  border-radius: 16px;
-  overflow: hidden;
+  position: absolute; width: 100%; height: 100%;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 16px; overflow: hidden;
 }
 
-/* ── Card front (question face) ── */
+/* Card front */
 .card-front {
-  background: var(--card-bg);
-  border: 2px solid var(--gold-dark);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 1rem;
+  background: var(--card-bg); border: 2px solid var(--gold-dark);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 1rem;
 }
-
-.corner-tl {
-  position: absolute;
-  top: 10px; left: 12px;
-  display: flex; flex-direction: column; align-items: center; line-height: 1;
-}
-
-.corner-br {
-  position: absolute;
-  bottom: 10px; right: 12px;
-  display: flex; flex-direction: column; align-items: center; line-height: 1;
-  transform: rotate(180deg);
-}
-
-.corner-val {
-  font-family: 'Cinzel', serif;
-  font-size: 17px; font-weight: 700; line-height: 1;
-}
-
+.corner-tl { position: absolute; top: 10px; left: 12px; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.corner-br { position: absolute; bottom: 10px; right: 12px; display: flex; flex-direction: column; align-items: center; line-height: 1; transform: rotate(180deg); }
+.corner-val { font-family: 'Cinzel', serif; font-size: 17px; font-weight: 700; line-height: 1; }
 .corner-suit { font-size: 14px; line-height: 1; }
 
-/* ── Card back (answer / question back) ── */
+/* Card back */
 .card-back {
-  border: 2px solid var(--gold);
-  transform: rotateY(180deg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 6px; padding: 1.5rem;
-  background: var(--card-bg);
+  border: 2px solid var(--gold); transform: rotateY(180deg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 1.5rem; background: var(--card-bg);
 }
-
-.card-back.card-back-blue {
-  background: #1a2a4a;
-  border-color: var(--gold);
-}
-
-.card-back-svg {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  border-radius: 14px; overflow: hidden; pointer-events: none;
-}
-
-.card-back .corner-val {
-  font-family: 'Cinzel', serif;
-  font-size: 16px; font-weight: 700; line-height: 1; color: var(--black);
-  position: relative; z-index: 1;
-}
-
+.card-back.card-back-blue { background: #1a2a4a; border-color: var(--gold); }
+.card-back-svg { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 14px; overflow: hidden; pointer-events: none; }
+.card-back .corner-val { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700; line-height: 1; color: var(--black); position: relative; z-index: 1; }
 .card-back.card-back-blue .corner-val { color: var(--gold-light); }
-
 .card-back .corner-suit { font-size: 13px; line-height: 1; position: relative; z-index: 1; }
 
-/* Card content */
 .suit-symbol, .corner-suit {
   font-family: 'Segoe UI Symbol', 'Apple Symbols', 'Arial Unicode MS', Georgia, serif;
-  font-style: normal;
-  font-variant-emoji: text;
-  -webkit-font-feature-settings: "liga" off;
-  text-rendering: geometricPrecision;
+  font-style: normal; font-variant-emoji: text;
+  -webkit-font-feature-settings: "liga" off; text-rendering: geometricPrecision;
 }
 .suit-symbol { font-size: 76px; line-height: 1; text-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 .card-label { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 600; letter-spacing: 0.03em; }
 .card-sublabel { font-size: 12px; color: #888; font-style: italic; text-align: center; }
-
-.position-number {
-  font-family: 'Cinzel', serif;
-  font-size: 82px; font-weight: 700; line-height: 1;
-  color: var(--black); text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.phase-label {
-  font-family: 'Cinzel', serif;
-  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
-  color: #aaa; margin-bottom: 2px; text-align: center;
-}
-
+.position-number { font-family: 'Cinzel', serif; font-size: 82px; font-weight: 700; line-height: 1; color: var(--black); text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.phase-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #aaa; margin-bottom: 2px; text-align: center; }
 .card-back .phase-label { color: var(--gold-dark); }
 .card-back .card-label { color: var(--cream); }
 .card-back .position-number { color: var(--gold-light); text-shadow: 0 0 20px rgba(201,168,76,0.3); }
 .card-back .card-sublabel { color: var(--cream-dim); }
-
 .red { color: var(--red); }
 .card-back .red { color: #e87070; }
 .card-back .corner-suit.red, .card-back .corner-val.red { color: #e87070; }
 
-/* Idle card */
 .idle-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .idle-text { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(201,168,76,0.5); text-align: center; line-height: 2; }
 
-/* Card state classes */
-.card-idle {
-  background: #1a2a4a !important;
-  border-color: rgba(201,168,76,0.3) !important;
-  background-image: none !important;
-}
+.card-idle { background: #1a2a4a !important; border-color: rgba(201,168,76,0.3) !important; }
+.card-felt { background: #1a2a4a !important; border-color: var(--gold) !important; }
+.card-cream { background: var(--card-bg) !important; border-color: var(--gold-dark) !important; }
 
-.card-felt {
-  background: #1a2a4a !important;
-  border-color: var(--gold) !important;
-  background-image: none !important;
-}
-
-.card-cream {
-  background: var(--card-bg) !important;
-  border-color: var(--gold-dark) !important;
-  background-image: none !important;
-}
-
-/* Gold colour helpers */
 .gold { color: var(--gold-light); }
 .gold-dim { color: var(--gold-dark); }
 .gold-bright { color: var(--gold-light); text-shadow: 0 0 20px rgba(201,168,76,0.3); }
+.idle-suit { font-size: 52px; opacity: 0.12; color: var(--gold); }
+
+/* ── Mic indicator on card ── */
+.mic-overlay {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.3s;
+}
+.mic-overlay.visible { opacity: 1; }
+.mic-ring {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(46,204,113,0.15); border: 2px solid var(--correct);
+  display: flex; align-items: center; justify-content: center;
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(46,204,113,0); }
+}
+.mic-ring svg { width: 18px; height: 18px; fill: var(--correct); }
+.mic-hint { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.1em; color: var(--correct); text-transform: uppercase; }
+
+/* ── Voice feedback banner ── */
+.voice-feedback {
+  height: 38px; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 0.6rem; transition: opacity 0.4s;
+}
+.feedback-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 999px; font-family: 'Cinzel', serif;
+  font-size: 12px; letter-spacing: 0.06em; opacity: 0; transition: opacity 0.3s;
+  border: 1px solid transparent;
+}
+.feedback-pill.correct { background: rgba(46,204,113,0.15); border-color: var(--correct); color: var(--correct); opacity: 1; }
+.feedback-pill.wrong { background: rgba(231,76,60,0.15); border-color: var(--wrong); color: #e87070; opacity: 1; }
+.feedback-pill.listening { background: rgba(201,168,76,0.1); border-color: var(--gold-dark); color: var(--gold); opacity: 1; }
+.feedback-pill.heard { background: rgba(100,150,255,0.1); border-color: #6699ff; color: #aabbff; opacity: 1; }
+.feedback-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
 /* ── Timer bar ── */
-.timer-wrap {
-  height: 3px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  margin-bottom: 1.25rem;
-  overflow: hidden;
-}
-
-.timer-bar {
-  height: 3px;
-  background: linear-gradient(to right, var(--gold-dark), var(--gold));
-  border-radius: 2px;
-  width: 100%;
-}
+.timer-wrap { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-bottom: 1.25rem; overflow: hidden; }
+.timer-bar { height: 3px; background: linear-gradient(to right, var(--gold-dark), var(--gold)); border-radius: 2px; width: 100%; }
 
 /* ── Play button ── */
-.play-row {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.25rem;
-}
-
+.play-row { display: flex; justify-content: center; margin-bottom: 1.25rem; }
 .big-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 48px;
-  font-size: 15px;
-  font-family: 'Cinzel', serif;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  border: 1px solid var(--gold);
-  border-radius: 8px;
+  display: flex; align-items: center; gap: 12px; padding: 14px 48px;
+  font-size: 15px; font-family: 'Cinzel', serif; font-weight: 600; letter-spacing: 0.1em;
+  border: 1px solid var(--gold); border-radius: 8px;
   background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
-  color: var(--gold);
-  cursor: pointer;
-  transition: all 0.25s;
-  text-transform: uppercase;
+  color: var(--gold); cursor: pointer; transition: all 0.25s; text-transform: uppercase;
   box-shadow: 0 0 20px rgba(201,168,76,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
 }
-
 .big-btn:hover {
   background: linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.1));
   box-shadow: 0 0 30px rgba(201,168,76,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
   transform: translateY(-1px);
 }
-
 .big-btn:active { transform: translateY(0); }
-
-.big-btn.running {
-  border-color: #e74c3c;
-  color: #e87070;
-  background: linear-gradient(135deg, rgba(231,76,60,0.15), rgba(231,76,60,0.05));
-  box-shadow: 0 0 20px rgba(231,76,60,0.15);
-}
+.big-btn.running { border-color: #e74c3c; color: #e87070; background: linear-gradient(135deg, rgba(231,76,60,0.15), rgba(231,76,60,0.05)); box-shadow: 0 0 20px rgba(231,76,60,0.15); }
 
 /* ── Log section ── */
-.log-section {
-  border-top: 1px solid rgba(201,168,76,0.2);
-  padding-top: 1.25rem;
-}
-
+.log-section { border-top: 1px solid rgba(201,168,76,0.2); padding-top: 1.25rem; }
 .log-title {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gold);
-  letter-spacing: 0.08em;
-  margin-bottom: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  text-transform: uppercase;
+  font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; color: var(--gold);
+  letter-spacing: 0.08em; margin-bottom: 0.85rem;
+  display: flex; align-items: center; justify-content: space-between; text-transform: uppercase;
 }
-
-.log-clear {
-  font-size: 11px;
-  font-family: 'Crimson Text', serif;
-  color: var(--cream-dim);
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-  letter-spacing: 0;
-  text-transform: none;
-  font-weight: 400;
-}
-
+.log-clear { font-size: 11px; font-family: 'Crimson Text', serif; color: var(--cream-dim); cursor: pointer; background: none; border: none; padding: 0; letter-spacing: 0; text-transform: none; font-weight: 400; }
 .log-clear:hover { color: #e87070; }
-
-.session-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 1rem;
-}
-
-.stat {
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(201,168,76,0.2);
-  border-radius: 8px;
-  padding: 10px 14px;
-  flex: 1;
-  text-align: center;
-}
-
-.stat-label {
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  color: var(--gold-dark);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.stat-val {
-  font-family: 'Cinzel', serif;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--gold-light);
-}
-
-.log-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 8px;
-}
-
-.log-card {
-  background: rgba(0,0,0,0.25);
-  border: 1px solid rgba(201,168,76,0.15);
-  border-radius: 8px;
-  padding: 10px 12px;
-}
-
+.session-row { display: flex; gap: 10px; margin-bottom: 1rem; }
+.stat { background: rgba(0,0,0,0.3); border: 1px solid rgba(201,168,76,0.2); border-radius: 8px; padding: 10px 14px; flex: 1; text-align: center; }
+.stat-label { font-family: 'Cinzel', serif; font-size: 10px; color: var(--gold-dark); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+.stat-val { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 600; color: var(--gold-light); }
+.log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.log-card { background: rgba(0,0,0,0.25); border: 1px solid rgba(201,168,76,0.15); border-radius: 8px; padding: 10px 12px; }
 .log-date { font-size: 11px; color: var(--gold-dark); margin-bottom: 3px; font-family: 'Cinzel', serif; letter-spacing: 0.04em; }
 .log-time { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 600; color: var(--gold-light); }
 .log-sessions { font-size: 12px; color: var(--cream-dim); margin-top: 2px; font-style: italic; }
-
-.status-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--gold-dark);
-  display: inline-block; margin-right: 8px;
-  transition: all 0.3s;
-}
-
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold-dark); display: inline-block; margin-right: 8px; transition: all 0.3s; }
 .status-dot.active { background: #2ecc71; box-shadow: 0 0 8px rgba(46,204,113,0.6); }
-
 .sync-status { font-size: 11px; color: var(--gold-dark); margin-left: 8px; font-weight: 400; text-transform: none; letter-spacing: 0; font-family: 'Crimson Text', serif; }
-
 .no-log { font-size: 14px; color: var(--cream-dim); font-style: italic; }
 
-/* ── Idle card placeholder ── */
-.idle-suit { font-size: 52px; opacity: 0.12; color: var(--gold); }
+/* ── Score display (voice mode) ── */
+.score-row {
+  display: none; align-items: center; justify-content: center; gap: 20px;
+  margin-bottom: 0.75rem;
+}
+.score-row.visible { display: flex; }
+.score-box { text-align: center; }
+.score-num { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700; }
+.score-num.correct { color: var(--correct); }
+.score-num.wrong { color: var(--wrong); }
+.score-lbl { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream-dim); margin-top: 1px; }
+.score-sep { width: 1px; height: 30px; background: rgba(201,168,76,0.2); }
 </style>
 </head>
 <body>
@@ -568,6 +353,17 @@ body {
           </select>
         </div>
       </div>
+      <!-- Voice mode toggle -->
+      <div class="voice-row">
+        <div class="voice-toggle-wrap">
+          <span class="voice-label-text" id="voice-label">Voice Mode</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="voice-toggle" onchange="onVoiceToggle()" />
+            <span class="toggle-slider"></span>
+          </label>
+          <span style="font-size:11px;color:var(--gold-dark);font-family:'Cinzel',serif;" id="voice-status">Off</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -580,18 +376,38 @@ body {
     </button>
   </div>
 
+  <!-- Score (voice mode only) -->
+  <div class="score-row" id="score-row">
+    <div class="score-box"><div class="score-num correct" id="score-correct">0</div><div class="score-lbl">Correct</div></div>
+    <div class="score-sep"></div>
+    <div class="score-box"><div class="score-num wrong" id="score-wrong">0</div><div class="score-lbl">Wrong</div></div>
+    <div class="score-sep"></div>
+    <div class="score-box"><div class="score-num" style="color:var(--gold-light)" id="score-pct">—</div><div class="score-lbl">Score</div></div>
+  </div>
+
+  <!-- Voice feedback banner -->
+  <div class="voice-feedback" id="voice-feedback">
+    <div class="feedback-pill" id="feedback-pill"></div>
+  </div>
+
   <div class="card-scene" id="card-scene">
     <div class="card-inner" id="card-inner">
       <div class="card-face card-front" id="front-face">
-        <div class="idle-back-pattern"></div>
-        <div class="idle-border-outer"></div>
-        <div class="idle-border-inner"></div>
         <div class="idle-content">
           <div class="idle-suit">♠</div>
           <div class="idle-text">Press<br>Start<br>to Begin</div>
         </div>
       </div>
       <div class="card-face card-back" id="back-face"></div>
+    </div>
+    <!-- Mic overlay sits inside card-scene, over the card -->
+    <div class="mic-overlay" id="mic-overlay">
+      <div class="mic-ring">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-6 10a6 6 0 0 0 12 0h2a8 8 0 0 1-7 7.93V21h2v2H9v-2h2v-2.07A8 8 0 0 1 4 11h2z"/>
+        </svg>
+      </div>
+      <div class="mic-hint">Listening…</div>
     </div>
   </div>
 
@@ -620,15 +436,16 @@ body {
 
 </div>
 
-
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
-const AUDIO_BASE = 'https://ilkleyman.github.io/mnemonica-audio/audio/';
+const AUDIO_BASE = 'https://ilkleyman.github.io/mnemonica-audio-speech/audio/';
 const JSONBIN_KEY = '$2a$10$JVbcJI4T4huSZPjzJcrydOkeFpAfTqp1pdowSu4OQLRxClvgiwR42';
 const JSONBIN_API = 'https://api.jsonbin.io/v3/b';
+const BIN_ID = '69f0f3ffaaba8821974acdb9';
+
 const CARD_BACK_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 220 320' preserveAspectRatio='xMidYMid slice'>
   <defs>
     <pattern id='cb-trellis' x='0' y='0' width='20' height='20' patternUnits='userSpaceOnUse'>
@@ -660,7 +477,6 @@ const CARD_BACK_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='100%' heig
   <polygon points='110,28 114,32 110,36 106,32' fill='#c9a84c' opacity='0.5'/>
   <polygon points='110,284 114,288 110,292 106,288' fill='#c9a84c' opacity='0.5'/>
 </svg>`;
-const BIN_ID = '69f0f3ffaaba8821974acdb9';
 
 const STACK = [
   {pos:1,v:'4',s:'C'},{pos:2,v:'2',s:'H'},{pos:3,v:'7',s:'D'},{pos:4,v:'3',s:'C'},
@@ -678,12 +494,11 @@ const STACK = [
   {pos:49,v:'10',s:'D'},{pos:50,v:'6',s:'C'},{pos:51,v:'A',s:'H'},{pos:52,v:'9',s:'D'}
 ];
 
-const SUITS    = {H:'\u2665',D:'\u2666',C:'\u2663',S:'\u2660'};
-const RED      = ['H','D'];
-const VNAMES   = {A:'Ace','2':'Two','3':'Three','4':'Four','5':'Five','6':'Six','7':'Seven','8':'Eight','9':'Nine','10':'Ten',J:'Jack',Q:'Queen',K:'King'};
-const SNAMES   = {H:'Hearts',D:'Diamonds',C:'Clubs',S:'Spades'};
+const SUITS  = {H:'\u2665',D:'\u2666',C:'\u2663',S:'\u2660'};
+const RED    = ['H','D'];
+const VNAMES = {A:'Ace','2':'Two','3':'Three','4':'Four','5':'Five','6':'Six','7':'Seven','8':'Eight','9':'Nine','10':'Ten',J:'Jack',Q:'Queen',K:'King'};
+const SNAMES = {H:'Hearts',D:'Diamonds',C:'Clubs',S:'Spades'};
 
-/* Suit rendering — SVG paths for S and C to guarantee solid fill on all devices */
 const SUIT_PATHS = {
   S: 'M50 5 C50 5 10 35 10 58 C10 75 25 82 40 76 C35 88 28 95 18 98 L82 98 C72 95 65 88 60 76 C75 82 90 75 90 58 C90 35 50 5 50 5Z',
   C: 'M50 8 C38 8 28 18 28 30 C28 38 32 45 38 49 C30 47 22 50 18 58 C14 67 19 78 28 82 C34 85 41 83 46 79 C43 88 38 95 28 98 L72 98 C62 95 57 88 54 79 C59 83 66 85 72 82 C81 78 86 67 82 58 C78 50 70 47 62 49 C68 45 72 38 72 30 C72 18 62 8 50 8Z'
@@ -696,14 +511,281 @@ function suitSymbol(s, color, sizePx) {
   return `<span style="color:${color};font-size:${sizePx}px;line-height:1">${SUITS[s]}</span>`;
 }
 
-/* ── State ── */
+/* ════════════════════════════════════════
+   SPEECH RECOGNITION
+   ════════════════════════════════════════ */
+
+// Build all valid answer strings for matching
+// For pos-to-card: card name e.g. "seven of clubs"
+// For card-to-pos: number e.g. "twenty three" / "23"
+// For card-before/after: card name of adjacent card
+
+const NUM_WORDS = {
+  1:'one',2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven',8:'eight',9:'nine',10:'ten',
+  11:'eleven',12:'twelve',13:'thirteen',14:'fourteen',15:'fifteen',16:'sixteen',17:'seventeen',
+  18:'eighteen',19:'nineteen',20:'twenty',21:'twenty one',22:'twenty two',23:'twenty three',
+  24:'twenty four',25:'twenty five',26:'twenty six',27:'twenty seven',28:'twenty eight',
+  29:'twenty nine',30:'thirty',31:'thirty one',32:'thirty two',33:'thirty three',34:'thirty four',
+  35:'thirty five',36:'thirty six',37:'thirty seven',38:'thirty eight',39:'thirty nine',40:'forty',
+  41:'forty one',42:'forty two',43:'forty three',44:'forty four',45:'forty five',46:'forty six',
+  47:'forty seven',48:'forty eight',49:'forty nine',50:'fifty',51:'fifty one',52:'fifty two'
+};
+
+// Normalise spoken text for comparison
+function normalise(str) {
+  return str.toLowerCase()
+    .replace(/[^a-z0-9 ]/g, '')   // strip punctuation
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Build a list of accepted phrases for a given answer
+function buildAcceptedPhrases(card) {
+  const vn = VNAMES[card.v].toLowerCase();   // e.g. "seven"
+  const sn = SNAMES[card.s].toLowerCase();   // e.g. "clubs"
+  // Remove trailing 's' for suit: "clubs" → "club" etc. (some people say "club")
+  const snShort = sn.replace(/s$/, '');
+
+  if (card.qtype === 'card-to-pos') {
+    const n = card.pos;
+    const phrases = [String(n), NUM_WORDS[n]];
+    // Handle "twenty-three" hyphenated
+    if (NUM_WORDS[n].includes(' ')) {
+      phrases.push(NUM_WORDS[n].replace(' ', '-'));
+    }
+    return phrases;
+  }
+
+  // For pos-to-card, card-before, card-after: answer is a card name
+  let ansCard = card;
+  if (card.qtype === 'card-before') ansCard = STACK.find(c => c.pos === card.pos - 1) || card;
+  if (card.qtype === 'card-after')  ansCard = STACK.find(c => c.pos === card.pos + 1) || card;
+  const av = VNAMES[ansCard.v].toLowerCase();
+  const as = SNAMES[ansCard.s].toLowerCase();
+  const asShort = as.replace(/s$/, '');
+
+  return [
+    `${av} of ${as}`,          // "seven of clubs"
+    `${av} of ${asShort}`,     // "seven of club"
+    `${av} ${as}`,             // "seven clubs"
+    `${av} ${asShort}`,        // "seven club"
+    `the ${av} of ${as}`,
+    `the ${av} ${as}`,
+    // Ace special cases
+    ...(ansCard.v === 'A' ? [`ace of ${as}`, `ace ${as}`, `ace of ${asShort}`, `ace ${asShort}`] : []),
+  ];
+}
+
+function checkAnswer(transcript, card) {
+  const heard = normalise(transcript);
+  const accepted = buildAcceptedPhrases(card).map(normalise);
+  // Exact match or heard contains the accepted phrase
+  return accepted.some(phrase => heard === phrase || heard.includes(phrase));
+}
+
+// Speech recognition state
+let recognition = null;
+let voiceMode = false;
+let voiceListening = false;
+let voiceExpectedCard = null;
+let voiceAnswerTimeout = null;
+let scoreCorrect = 0, scoreWrong = 0;
+
+function initRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.continuous = false;
+  r.interimResults = true;
+  r.lang = 'en-GB';
+  r.maxAlternatives = 5;
+
+  r.onresult = (e) => {
+    if (!voiceListening || !voiceExpectedCard) return;
+    let finalTranscript = '';
+    let interimTranscript = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        for (let j = 0; j < e.results[i].length; j++) {
+          finalTranscript += e.results[i][j].transcript + ' ';
+        }
+      } else {
+        interimTranscript += e.results[i][0].transcript;
+      }
+    }
+    if (interimTranscript) {
+      showFeedback('heard', `"${interimTranscript}"`);
+    }
+    if (finalTranscript.trim()) {
+      handleVoiceAnswer(finalTranscript.trim());
+    }
+  };
+
+  r.onerror = (e) => {
+    if (e.error === 'no-speech') {
+      // Timeout - treat as wrong
+      if (voiceListening) handleVoiceAnswer('');
+    } else if (e.error === 'not-allowed') {
+      showFeedback('wrong', 'Microphone not allowed');
+      voiceMode = false;
+      document.getElementById('voice-toggle').checked = false;
+      updateVoiceUI();
+    }
+  };
+
+  r.onend = () => {
+    voiceListening = false;
+    hideMic();
+  };
+
+  return r;
+}
+
+function startListening(card) {
+  if (!recognition) recognition = initRecognition();
+  if (!recognition) {
+    showFeedback('wrong', 'Speech not supported in this browser');
+    return;
+  }
+  voiceExpectedCard = card;
+  voiceListening = true;
+  showMic();
+  showFeedback('listening', 'Listening…');
+  try {
+    recognition.start();
+  } catch(e) {
+    // Already started — stop and restart
+    try { recognition.stop(); } catch(e2) {}
+    setTimeout(() => {
+      try { recognition.start(); } catch(e3) {}
+    }, 300);
+  }
+}
+
+function stopListening() {
+  voiceListening = false;
+  voiceExpectedCard = null;
+  clearTimeout(voiceAnswerTimeout);
+  hideMic();
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+  }
+}
+
+function handleVoiceAnswer(transcript) {
+  if (!voiceListening && transcript !== '') return;
+  clearTimeout(voiceAnswerTimeout);
+  stopListening();
+
+  const card = voiceExpectedCard || currentCard;
+  if (!card) return;
+
+  const correct = transcript !== '' && checkAnswer(transcript, card);
+
+  if (correct) {
+    scoreCorrect++;
+    showFeedback('correct', '✓ Correct');
+    speakText('Correct');
+  } else {
+    scoreWrong++;
+    const answerLabel = getAnswerLabel(card);
+    showFeedback('wrong', transcript ? `✗ "${transcript}" — ${answerLabel}` : `✗ ${answerLabel}`);
+    speakText(answerLabel);
+  }
+  updateScore();
+
+  // Flip card to show visual answer, then move on
+  const mySession = sessionId;
+  playFlipSound();
+  document.getElementById('card-scene').classList.add('flipped');
+  playAnswer(card, () => {});
+
+  t4 = setTimeout(() => {
+    if (!running || sessionId !== mySession) return;
+    clearFeedback();
+    idx++;
+    if (idx >= deck.length) { round++; deck = buildDeck(getRange()); idx = 0; }
+    showCard();
+  }, 2500);
+}
+
+function getAnswerLabel(card) {
+  if (card.qtype === 'card-to-pos') return `Position ${card.pos}`;
+  let ansCard = card;
+  if (card.qtype === 'card-before') ansCard = STACK.find(c => c.pos === card.pos - 1) || card;
+  if (card.qtype === 'card-after')  ansCard = STACK.find(c => c.pos === card.pos + 1) || card;
+  return `${VNAMES[ansCard.v]} of ${SNAMES[ansCard.s]}`;
+}
+
+/* Web Speech Synthesis for feedback */
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-GB';
+  utt.rate = 1.1;
+  utt.volume = 0.9;
+  window.speechSynthesis.speak(utt);
+}
+
+/* Feedback pill */
+function showFeedback(type, text) {
+  const pill = document.getElementById('feedback-pill');
+  pill.className = 'feedback-pill ' + type;
+  pill.innerHTML = `<div class="feedback-dot"></div><span>${text}</span>`;
+}
+
+function clearFeedback() {
+  const pill = document.getElementById('feedback-pill');
+  pill.className = 'feedback-pill';
+  pill.innerHTML = '';
+}
+
+function showMic() { document.getElementById('mic-overlay').classList.add('visible'); }
+function hideMic() { document.getElementById('mic-overlay').classList.remove('visible'); }
+
+function updateScore() {
+  document.getElementById('score-correct').textContent = scoreCorrect;
+  document.getElementById('score-wrong').textContent = scoreWrong;
+  const total = scoreCorrect + scoreWrong;
+  document.getElementById('score-pct').textContent = total > 0 ? Math.round(scoreCorrect / total * 100) + '%' : '—';
+}
+
+function onVoiceToggle() {
+  voiceMode = document.getElementById('voice-toggle').checked;
+  updateVoiceUI();
+  saveSettings();
+  if (running) stopPlay();
+}
+
+function updateVoiceUI() {
+  const statusEl = document.getElementById('voice-status');
+  const labelEl = document.getElementById('voice-label');
+  if (voiceMode) {
+    statusEl.textContent = 'On';
+    statusEl.style.color = 'var(--correct)';
+    labelEl.classList.add('on');
+    document.getElementById('score-row').classList.add('visible');
+  } else {
+    statusEl.textContent = 'Off';
+    statusEl.style.color = 'var(--gold-dark)';
+    labelEl.classList.remove('on');
+    document.getElementById('score-row').classList.remove('visible');
+  }
+}
+
+/* ════════════════════════════════════════
+   CORE APP STATE
+   ════════════════════════════════════════ */
+
 let activeModes = new Set(['pos-to-card']), deck = [], idx = 0, round = 1;
 let running = false, sessionId = 0;
-let t1 = null, t2 = null, t3 = null, t4 = null;  // all timers
+let t1 = null, t2 = null, t3 = null, t4 = null;
 let cardPhrases = [], posPhrases = [], linkPhrases = [], introPhrases = [], beforePhrases = [], afterPhrases = [];
 let wickedTimer = null, wickedDelay = 5000;
 let sessionStart = null, sessionTimer = null, sessionSeconds = 0;
 let currentAudio = null;
+let currentCard = null;
 
 /* ── Flip sound ── */
 function playFlipSound() {
@@ -717,10 +799,7 @@ function playFlipSound() {
     const src = ctx.createBufferSource();
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.18, ctx.currentTime);
-    src.buffer = buf;
-    src.connect(gain);
-    gain.connect(ctx.destination);
-    src.start();
+    src.buffer = buf; src.connect(gain); gain.connect(ctx.destination); src.start();
   } catch(e) {}
 }
 
@@ -752,10 +831,7 @@ const audioCache = {};
 
 function preloadAudio(url) {
   if (audioCache[url]) return;
-  const a = new Audio();
-  a.preload = 'auto';
-  a.src = url;
-  a.load();
+  const a = new Audio(); a.preload = 'auto'; a.src = url; a.load();
   audioCache[url] = true;
 }
 
@@ -805,26 +881,23 @@ function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function playChain(urls, onDone) {
   const list = urls.filter(Boolean);
   if (!list.length) { if (onDone) onDone(); return; }
-  let i = 0;
-  let active = true;
+  let i = 0, active = true;
   function next() {
     if (!running || !active) return;
     if (i >= list.length) { if (onDone) onDone(); return; }
     const a = new Audio(list[i++]);
     currentAudio = a;
     a.onended = next;
-    a.onerror = () => { setTimeout(next, 100); }; // small delay on error
+    a.onerror = () => { setTimeout(next, 100); };
     a.play().catch(() => { setTimeout(next, 100); });
   }
   next();
-  return () => { active = false; }; // return cancel function
+  return () => { active = false; };
 }
 
 function stopCurrentAudio() {
   if (currentAudio) {
-    currentAudio.onended = null;
-    currentAudio.onerror = null;
-    currentAudio.pause();
+    currentAudio.onended = null; currentAudio.onerror = null; currentAudio.pause();
     try { currentAudio.src = ''; } catch(e) {}
     currentAudio = null;
   }
@@ -859,17 +932,10 @@ function buildDeck(cards) {
   return shuffle(all);
 }
 
-function applyRange() {
-  if (running) stopPlay();
-  deck = buildDeck(getRange()); idx = 0; round = 1;
-  updateProgress(); resetFaces();
-  saveSettings();
-}
-
 function toggleMode(m) {
   const btnMap = {'pos-to-card':'ptc','card-to-pos':'ctp','card-before':'bef','card-after':'aft'};
   if (activeModes.has(m)) {
-    if (activeModes.size === 1) return; // always keep at least one active
+    if (activeModes.size === 1) return;
     activeModes.delete(m);
     document.getElementById('btn-' + btnMap[m]).classList.remove('active');
   } else {
@@ -878,8 +944,7 @@ function toggleMode(m) {
   }
   if (running) stopPlay();
   deck = buildDeck(getRange()); idx = 0; round = 1;
-  updateProgress(); resetFaces();
-  saveSettings();
+  updateProgress(); resetFaces(); saveSettings();
 }
 
 /* ── Card rendering ── */
@@ -921,14 +986,8 @@ function renderFront(card) {
     const suit_sm = suitSymbol(card.s, color, 15);
     const lbl = card.qtype === 'card-before' ? 'What card comes before?' : 'What card comes after?';
     f.innerHTML = `
-      <div class="corner-tl">
-        <div class="corner-val" style="color:${color}">${card.v}</div>
-        <div>${suit_sm}</div>
-      </div>
-      <div class="corner-br">
-        <div class="corner-val" style="color:${color}">${card.v}</div>
-        <div>${suit_sm}</div>
-      </div>
+      <div class="corner-tl"><div class="corner-val" style="color:${color}">${card.v}</div><div>${suit_sm}</div></div>
+      <div class="corner-br"><div class="corner-val" style="color:${color}">${card.v}</div><div>${suit_sm}</div></div>
       <div class="phase-label">${lbl}</div>
       ${suit_lg}
       <div class="card-label" style="color:${color}">${VNAMES[card.v]} of ${SNAMES[card.s]}</div>`;
@@ -937,14 +996,8 @@ function renderFront(card) {
     const suit_lg = suitSymbol(card.s, color, 72);
     const suit_sm = suitSymbol(card.s, color, 15);
     f.innerHTML = `
-      <div class="corner-tl">
-        <div class="corner-val" style="color:${color}">${card.v}</div>
-        <div>${suit_sm}</div>
-      </div>
-      <div class="corner-br">
-        <div class="corner-val" style="color:${color}">${card.v}</div>
-        <div>${suit_sm}</div>
-      </div>
+      <div class="corner-tl"><div class="corner-val" style="color:${color}">${card.v}</div><div>${suit_sm}</div></div>
+      <div class="corner-br"><div class="corner-val" style="color:${color}">${card.v}</div><div>${suit_sm}</div></div>
       <div class="phase-label">What position?</div>
       ${suit_lg}
       <div class="card-label" style="color:${color}">${VNAMES[card.v]} of ${SNAMES[card.s]}</div>`;
@@ -953,7 +1006,6 @@ function renderFront(card) {
 
 function renderBack(card) {
   const b = document.getElementById('back-face');
-  // For card-before: answer is the card at pos-1; for card-after: pos+1
   let ansCard = card;
   if (card.qtype === 'card-before') ansCard = STACK.find(c => c.pos === card.pos - 1) || card;
   if (card.qtype === 'card-after')  ansCard = STACK.find(c => c.pos === card.pos + 1) || card;
@@ -963,14 +1015,8 @@ function renderBack(card) {
     const suit_lg = suitSymbol(ansCard.s, color, 72);
     const suit_sm = suitSymbol(ansCard.s, color, 15);
     b.innerHTML = `
-      <div class="corner-tl">
-        <div class="corner-val" style="color:${color}">${ansCard.v}</div>
-        <div>${suit_sm}</div>
-      </div>
-      <div class="corner-br">
-        <div class="corner-val" style="color:${color}">${ansCard.v}</div>
-        <div>${suit_sm}</div>
-      </div>
+      <div class="corner-tl"><div class="corner-val" style="color:${color}">${ansCard.v}</div><div>${suit_sm}</div></div>
+      <div class="corner-br"><div class="corner-val" style="color:${color}">${ansCard.v}</div><div>${suit_sm}</div></div>
       ${suit_lg}
       <div class="card-label" style="color:${color}">${VNAMES[ansCard.v]} of ${SNAMES[ansCard.s]}</div>`;
   } else {
@@ -987,18 +1033,15 @@ function renderBack(card) {
 /* ── Timer bar ── */
 function animateBar(ms) {
   const bar = document.getElementById('timer-bar');
-  bar.style.transition = 'none';
-  bar.style.width = '100%';
+  bar.style.transition = 'none'; bar.style.width = '100%';
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    bar.style.transition = `width ${ms}ms linear`;
-    bar.style.width = '0%';
+    bar.style.transition = `width ${ms}ms linear`; bar.style.width = '0%';
   }));
 }
 
 function stopBar() {
   const bar = document.getElementById('timer-bar');
-  bar.style.transition = 'none';
-  bar.style.width = '100%';
+  bar.style.transition = 'none'; bar.style.width = '100%';
 }
 
 /* ── Audio chain ── */
@@ -1037,21 +1080,14 @@ function playAnswer(card, onDone) {
 
 /* ── Wicked Mode ── */
 function isWicked() { return document.getElementById('delay-sel').value === 'wicked'; }
-
-function onDelayChange() {
-  saveSettings();
-}
+function onDelayChange() { saveSettings(); }
 
 function startWicked() {
   wickedDelay = 7000;
-  wickedTimer = setInterval(() => {
-    wickedDelay = Math.max(1000, wickedDelay - 500);
-  }, 60000);
+  wickedTimer = setInterval(() => { wickedDelay = Math.max(1000, wickedDelay - 500); }, 60000);
 }
 
-function stopWicked() {
-  clearInterval(wickedTimer); wickedTimer = null;
-}
+function stopWicked() { clearInterval(wickedTimer); wickedTimer = null; }
 
 function getCurrentDelay() {
   if (isWicked() && running) return wickedDelay;
@@ -1070,14 +1106,13 @@ function showCard() {
   clearAllTimers();
   const mySession = sessionId;
   const card = deck[idx];
+  currentCard = card;
   const delay = getCurrentDelay();
   const answerGap = 1500;
   const scene = document.getElementById('card-scene');
 
-  // Unflip back to question side
   scene.classList.remove('flipped');
 
-  // Swap content at midpoint of unflip (card is edge-on, invisible)
   t1 = setTimeout(() => {
     if (!running || sessionId !== mySession) return;
     renderFront(card);
@@ -1085,29 +1120,37 @@ function showCard() {
     updateProgress();
   }, 325);
 
-  // Once unflip completes, play question audio
   t2 = setTimeout(() => {
     if (!running || sessionId !== mySession) return;
     playQuestion(card, () => {
       if (!running || sessionId !== mySession) return;
-      animateBar(delay);
-      // After thinking delay, flip to answer
-      t3 = setTimeout(() => {
-        if (!running || sessionId !== mySession) return;
-        playFlipSound();
-        scene.classList.add('flipped');
-        playAnswer(card, () => {
+
+      if (voiceMode) {
+        // Voice mode: start listening instead of timer
+        startListening(card);
+        // Safety timeout — if no answer after 10s, move on
+        voiceAnswerTimeout = setTimeout(() => {
+          if (voiceListening) handleVoiceAnswer('');
+        }, 10000);
+      } else {
+        // Standard timer mode
+        animateBar(delay);
+        t3 = setTimeout(() => {
           if (!running || sessionId !== mySession) return;
-          animateBar(answerGap);
-          // After answer gap, move to next card
-          t4 = setTimeout(() => {
+          playFlipSound();
+          scene.classList.add('flipped');
+          playAnswer(card, () => {
             if (!running || sessionId !== mySession) return;
-            idx++;
-            if (idx >= deck.length) { round++; deck = buildDeck(getRange()); idx = 0; }
-            showCard();
-          }, answerGap);
-        });
-      }, delay);
+            animateBar(answerGap);
+            t4 = setTimeout(() => {
+              if (!running || sessionId !== mySession) return;
+              idx++;
+              if (idx >= deck.length) { round++; deck = buildDeck(getRange()); idx = 0; }
+              showCard();
+            }, answerGap);
+          });
+        }, delay);
+      }
     });
   }, 680);
 }
@@ -1117,6 +1160,7 @@ function togglePlay() { if (running) stopPlay(); else startPlay(); }
 function startPlay() {
   running = true; sessionId++;
   deck = buildDeck(getRange()); idx = 0; round = 1;
+  scoreCorrect = 0; scoreWrong = 0; updateScore();
   document.getElementById('play-btn').classList.add('running');
   document.getElementById('play-icon').innerHTML = '<rect x="3" y="2" width="4" height="12" rx="1" fill="currentColor"/><rect x="9" y="2" width="4" height="12" rx="1" fill="currentColor"/>';
   document.getElementById('play-label').textContent = 'Stop';
@@ -1131,6 +1175,8 @@ function stopPlay() {
   running = false; sessionId++;
   clearAllTimers();
   stopCurrentAudio(); stopBar();
+  stopListening();
+  clearFeedback();
   if (isWicked()) stopWicked();
   clearInterval(sessionTimer);
   document.getElementById('play-btn').classList.remove('running');
@@ -1210,7 +1256,8 @@ function saveSettings() {
     modes: [...activeModes],
     from: document.getElementById('range-from').value,
     to: document.getElementById('range-to').value,
-    delay: document.getElementById('delay-sel').value
+    delay: document.getElementById('delay-sel').value,
+    voice: voiceMode
   };
   localStorage.setItem('mnemonica_settings', JSON.stringify(s));
 }
@@ -1222,13 +1269,16 @@ function loadSettings() {
     if (s.from) document.getElementById('range-from').value = s.from;
     if (s.to) document.getElementById('range-to').value = s.to;
     if (s.delay) document.getElementById('delay-sel').value = s.delay;
+    if (s.voice) {
+      voiceMode = true;
+      document.getElementById('voice-toggle').checked = true;
+      updateVoiceUI();
+    }
     if (s.modes && Array.isArray(s.modes) && s.modes.length > 0) {
       activeModes = new Set(s.modes);
       const btnMap = {'pos-to-card':'ptc','card-to-pos':'ctp','card-before':'bef','card-after':'aft'};
       ['ptc','ctp','bef','aft'].forEach(id => document.getElementById('btn-' + id).classList.remove('active'));
-      activeModes.forEach(m => {
-        if (btnMap[m]) document.getElementById('btn-' + btnMap[m]).classList.add('active');
-      });
+      activeModes.forEach(m => { if (btnMap[m]) document.getElementById('btn-' + btnMap[m]).classList.add('active'); });
     }
   } catch(e) {}
 }
