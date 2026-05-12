@@ -434,6 +434,10 @@ body {
     <div class="log-grid" id="log-grid"><div class="no-log">No sessions yet — start drilling!</div></div>
   </div>
 
+  <div style="text-align:center;margin-top:1.5rem;font-family:'Cinzel',serif;font-size:10px;color:var(--gold-dark);letter-spacing:0.08em;opacity:0.6;">
+    V2 &nbsp;&bull;&nbsp; 12th May 2026
+  </div>
+
 </div>
 
 <script>
@@ -539,57 +543,104 @@ function normalise(str) {
     .trim();
 }
 
-// Build a list of accepted phrases for a given answer
-function buildAcceptedPhrases(card) {
-  const vn = VNAMES[card.v].toLowerCase();   // e.g. "seven"
-  const sn = SNAMES[card.s].toLowerCase();   // e.g. "clubs"
-  // Remove trailing 's' for suit: "clubs" → "club" etc. (some people say "club")
-  const snShort = sn.replace(/s$/, '');
+// ── Answer matching ──────────────────────────────────────────
 
-  if (card.qtype === 'card-to-pos') {
-    const n = card.pos;
-    const phrases = [String(n), NUM_WORDS[n]];
-    // Handle "twenty-three" hyphenated
-    if (NUM_WORDS[n].includes(' ')) {
-      phrases.push(NUM_WORDS[n].replace(' ', '-'));
-    }
-    return phrases;
-  }
+// All the ways a value might be spoken or returned by STT
+const VALUE_ALIASES = {
+  'A':  ['ace','a'],
+  '2':  ['two','2'],
+  '3':  ['three','3'],
+  '4':  ['four','4','for'],
+  '5':  ['five','5'],
+  '6':  ['six','6'],
+  '7':  ['seven','7'],
+  '8':  ['eight','8','ate'],
+  '9':  ['nine','9'],
+  '10': ['ten','10'],
+  'J':  ['jack','j'],
+  'Q':  ['queen','q'],
+  'K':  ['king','k'],
+};
 
-  // For pos-to-card, card-before, card-after: answer is a card name
+// All the ways a suit might be spoken or returned by STT
+const SUIT_ALIASES = {
+  'H': ['hearts','heart','h'],
+  'D': ['diamonds','diamond','d'],
+  'C': ['clubs','club','c'],
+  'S': ['spades','spade','s'],
+};
+
+function normalise(str) {
+  return str.toLowerCase()
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getAnswerCard(card) {
   let ansCard = card;
   if (card.qtype === 'card-before') ansCard = STACK.find(c => c.pos === card.pos - 1) || card;
   if (card.qtype === 'card-after')  ansCard = STACK.find(c => c.pos === card.pos + 1) || card;
-  const av = VNAMES[ansCard.v].toLowerCase();
-  const as = SNAMES[ansCard.s].toLowerCase();
-  const asShort = as.replace(/s$/, '');
-
-  return [
-    `${av} of ${as}`,          // "seven of clubs"
-    `${av} of ${asShort}`,     // "seven of club"
-    `${av} ${as}`,             // "seven clubs"
-    `${av} ${asShort}`,        // "seven club"
-    `the ${av} of ${as}`,
-    `the ${av} ${as}`,
-    // Ace special cases
-    ...(ansCard.v === 'A' ? [`ace of ${as}`, `ace ${as}`, `ace of ${asShort}`, `ace ${asShort}`] : []),
-  ];
+  return ansCard;
 }
 
 function checkAnswer(transcript, card) {
   const heard = normalise(transcript);
-  const accepted = buildAcceptedPhrases(card).map(normalise);
-  // Exact match or heard contains the accepted phrase
-  return accepted.some(phrase => heard === phrase || heard.includes(phrase));
+
+  // ── Position answer ──
+  if (card.qtype === 'card-to-pos') {
+    const n = card.pos;
+    const numStr = String(n);
+    const wordStr = NUM_WORDS[n];
+    // Accept digit, word, or if the heard string contains either
+    if (heard === numStr || heard === wordStr) return true;
+    if (heard.includes(numStr) || heard.includes(wordStr)) return true;
+    // Hyphenated variant e.g. "twenty-three"
+    if (wordStr.includes(' ') && heard.includes(wordStr.replace(' ', ''))) return true;
+    return false;
+  }
+
+  // ── Card answer ──
+  const ansCard = getAnswerCard(card);
+  const vAliases = VALUE_ALIASES[ansCard.v] || [];
+  const sAliases = SUIT_ALIASES[ansCard.s] || [];
+
+  // Check if heard contains any value alias AND any suit alias
+  const hasValue = vAliases.some(v => {
+    // Match as whole word to avoid "six" inside "sixty"
+    const re = new RegExp('\\b' + v + '\\b');
+    return re.test(heard);
+  });
+  const hasSuit = sAliases.some(s => {
+    const re = new RegExp('\\b' + s + '\\b');
+    return re.test(heard);
+  });
+
+  if (hasValue && hasSuit) return true;
+
+  // Generous fallback: value alone is enough if it's unambiguous
+  // (useful when suit is cut off or misheard)
+  // Only apply this if the value is specific enough (not single letters)
+  const specificValues = ['ace','two','three','four','five','six','seven','eight','nine','ten','jack','queen','king'];
+  if (hasValue && vAliases.some(v => specificValues.includes(v))) {
+    // Value match alone — accept if user got at least the value right
+    // (disabled by default — uncomment if you want more leniency)
+    // return true;
+  }
+
+  return false;
 }
 
-// Speech recognition state
+// ── Speech recognition state ────────────────────────────────
 let recognition = null;
 let voiceMode = false;
 let voiceListening = false;
 let voiceExpectedCard = null;
-let voiceAnswerTimeout = null;
+let voiceAnswerTimeout = null;  // hard wall-clock timeout
+let voiceAnswerHandled = false; // guard against double-fire
 let scoreCorrect = 0, scoreWrong = 0;
+
+const LISTEN_TIMEOUT_MS = 8000; // max time to wait for any answer
 
 function initRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -601,7 +652,7 @@ function initRecognition() {
   r.maxAlternatives = 5;
 
   r.onresult = (e) => {
-    if (!voiceListening || !voiceExpectedCard) return;
+    if (!voiceListening) return;
     let finalTranscript = '';
     let interimTranscript = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -622,18 +673,24 @@ function initRecognition() {
   };
 
   r.onerror = (e) => {
-    if (e.error === 'no-speech') {
-      // Timeout - treat as wrong
+    if (e.error === 'no-speech' || e.error === 'audio-capture' || e.error === 'network') {
       if (voiceListening) handleVoiceAnswer('');
     } else if (e.error === 'not-allowed') {
       showFeedback('wrong', 'Microphone not allowed');
       voiceMode = false;
       document.getElementById('voice-toggle').checked = false;
       updateVoiceUI();
+      voiceListening = false;
+      hideMic();
     }
   };
 
   r.onend = () => {
+    // If we're still supposed to be listening but recognition ended
+    // (common on mobile — it stops itself), trigger timeout answer
+    if (voiceListening && !voiceAnswerHandled) {
+      handleVoiceAnswer('');
+    }
     voiceListening = false;
     hideMic();
   };
@@ -642,38 +699,58 @@ function initRecognition() {
 }
 
 function startListening(card) {
-  if (!recognition) recognition = initRecognition();
+  // Destroy and recreate recognition each time — avoids stale state on mobile
+  if (recognition) {
+    try { recognition.abort(); } catch(e) {}
+    recognition = null;
+  }
+  recognition = initRecognition();
   if (!recognition) {
-    showFeedback('wrong', 'Speech not supported in this browser');
+    showFeedback('wrong', 'Speech recognition not supported in this browser');
     return;
   }
+
   voiceExpectedCard = card;
   voiceListening = true;
+  voiceAnswerHandled = false;
   showMic();
-  showFeedback('listening', 'Listening…');
+  showFeedback('listening', 'Listening\u2026');
+
+  // Hard wall-clock timeout — fires regardless of recognition state
+  clearTimeout(voiceAnswerTimeout);
+  voiceAnswerTimeout = setTimeout(() => {
+    if (voiceListening && !voiceAnswerHandled) {
+      handleVoiceAnswer('');
+    }
+  }, LISTEN_TIMEOUT_MS);
+
   try {
     recognition.start();
   } catch(e) {
-    // Already started — stop and restart
-    try { recognition.stop(); } catch(e2) {}
     setTimeout(() => {
-      try { recognition.start(); } catch(e3) {}
-    }, 300);
+      try { recognition.start(); } catch(e2) {
+        handleVoiceAnswer(''); // give up gracefully
+      }
+    }, 200);
   }
 }
 
 function stopListening() {
+  clearTimeout(voiceAnswerTimeout);
   voiceListening = false;
   voiceExpectedCard = null;
-  clearTimeout(voiceAnswerTimeout);
   hideMic();
   if (recognition) {
-    try { recognition.stop(); } catch(e) {}
+    try { recognition.abort(); } catch(e) {}
+    recognition = null;
   }
 }
 
 function handleVoiceAnswer(transcript) {
+  // Guard: never process twice for the same question
+  if (voiceAnswerHandled) return;
   if (!voiceListening && transcript !== '') return;
+  voiceAnswerHandled = true;
   clearTimeout(voiceAnswerTimeout);
   stopListening();
 
@@ -713,9 +790,7 @@ function handleVoiceAnswer(transcript) {
 
 function getAnswerLabel(card) {
   if (card.qtype === 'card-to-pos') return `Position ${card.pos}`;
-  let ansCard = card;
-  if (card.qtype === 'card-before') ansCard = STACK.find(c => c.pos === card.pos - 1) || card;
-  if (card.qtype === 'card-after')  ansCard = STACK.find(c => c.pos === card.pos + 1) || card;
+  const ansCard = getAnswerCard(card);
   return `${VNAMES[ansCard.v]} of ${SNAMES[ansCard.s]}`;
 }
 
