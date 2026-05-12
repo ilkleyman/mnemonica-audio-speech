@@ -680,33 +680,35 @@ function handleVoiceAnswer(transcript) {
   const card = voiceExpectedCard || currentCard;
   if (!card) return;
 
-  const correct = transcript !== '' && checkAnswer(transcript, card);
+  const timedOut = transcript === '';
+  const correct = !timedOut && checkAnswer(transcript, card);
+  const answerLabel = getAnswerLabel(card);
 
   if (correct) {
     scoreCorrect++;
-    showFeedback('correct', '✓ Correct');
-    speakText('Correct');
+    showFeedback('correct', `\u2713 ${answerLabel}`);
   } else {
     scoreWrong++;
-    const answerLabel = getAnswerLabel(card);
-    showFeedback('wrong', transcript ? `✗ "${transcript}" — ${answerLabel}` : `✗ ${answerLabel}`);
-    speakText(answerLabel);
+    showFeedback('wrong', timedOut ? `\u2717 ${answerLabel}` : `\u2717 "${transcript}" \u2014 ${answerLabel}`);
   }
   updateScore();
 
-  // Flip card to show visual answer, then move on
-  const mySession = sessionId;
+  // Flip card to show visual answer immediately
   playFlipSound();
   document.getElementById('card-scene').classList.add('flipped');
-  playAnswer(card, () => {});
 
-  t4 = setTimeout(() => {
+  // Synth speaks full varied response; move to next card only after it finishes
+  const mySession = sessionId;
+  speakResponse(correct, answerLabel, timedOut, () => {
     if (!running || sessionId !== mySession) return;
-    clearFeedback();
-    idx++;
-    if (idx >= deck.length) { round++; deck = buildDeck(getRange()); idx = 0; }
-    showCard();
-  }, 2500);
+    t4 = setTimeout(() => {
+      if (!running || sessionId !== mySession) return;
+      clearFeedback();
+      idx++;
+      if (idx >= deck.length) { round++; deck = buildDeck(getRange()); idx = 0; }
+      showCard();
+    }, 800);
+  });
 }
 
 function getAnswerLabel(card) {
@@ -717,14 +719,135 @@ function getAnswerLabel(card) {
   return `${VNAMES[ansCard.v]} of ${SNAMES[ansCard.s]}`;
 }
 
-/* Web Speech Synthesis for feedback */
-function speakText(text) {
-  if (!window.speechSynthesis) return;
+/* ── Web Speech Synthesis — voice selection & varied phrases ── */
+
+// Correct response templates — {answer} is replaced with the card/position
+const CORRECT_TEMPLATES = [
+  "That is correct. {answer}.",
+  "Well done. {answer}.",
+  "Absolutely right. {answer}.",
+  "Correct! {answer}.",
+  "Spot on. {answer}.",
+  "Yes, {answer}. Well done.",
+  "{answer}. That's right.",
+  "{answer}. Correct.",
+  "Nicely done. {answer}.",
+  "Right you are. {answer}.",
+  "Perfect. {answer}.",
+  "Excellent. {answer}.",
+  "That's the one. {answer}.",
+  "Good. {answer}.",
+  "Yes indeed. {answer}.",
+  "{answer}. You're absolutely right.",
+  "{answer}. Got it in one.",
+  "Brilliant. {answer}.",
+  "You've got it. {answer}.",
+  "That is indeed correct. {answer}.",
+];
+
+// Wrong response templates — {answer} is replaced with the card/position
+const WRONG_TEMPLATES = [
+  "No, the answer is {answer}.",
+  "Not quite. It's {answer}.",
+  "Wrong, I'm afraid. {answer}.",
+  "The answer was {answer}.",
+  "No. {answer}.",
+  "Not this time. {answer}.",
+  "Afraid not. The answer is {answer}.",
+  "Incorrect. It is {answer}.",
+  "Not quite right. {answer}.",
+  "That would be {answer}.",
+  "The correct answer is {answer}.",
+  "No, it's {answer}.",
+  "Try again next time. {answer}.",
+  "Almost, but no. {answer}.",
+  "Not that one. {answer}.",
+];
+
+// Timeout / no answer templates
+const TIMEOUT_TEMPLATES = [
+  "Too slow. {answer}.",
+  "Time's up. {answer}.",
+  "No answer. It's {answer}.",
+  "Come on. {answer}.",
+  "Nothing heard. The answer is {answer}.",
+  "Too late. {answer}.",
+];
+
+let selectedVoice = null;
+
+function pickVoice() {
+  if (!window.speechSynthesis) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  // Priority list: prefer deep/mature British/English male voices
+  const preferred = [
+    'Daniel',          // Apple British English male
+    'Arthur',          // Apple British English male (newer)
+    'Gordon',          // some systems
+    'en-GB',           // fallback to any en-GB
+    'en-US',           // then any en-US
+  ];
+
+  // Try name matches first
+  for (const name of preferred.slice(0, 3)) {
+    const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+    if (v) return v;
+  }
+  // Try en-GB male — filter by lang then pick one that sounds male by name heuristics
+  const maleNames = ['male','man','guy','david','james','george','thomas','william','richard','peter','paul','mark'];
+  const enGB = voices.filter(v => v.lang === 'en-GB');
+  if (enGB.length) {
+    const male = enGB.find(v => maleNames.some(n => v.name.toLowerCase().includes(n)));
+    if (male) return male;
+    return enGB[0]; // take first en-GB
+  }
+  // Fallback: any English
+  const enUS = voices.filter(v => v.lang.startsWith('en'));
+  if (enUS.length) return enUS[0];
+  return voices[0];
+}
+
+function ensureVoice() {
+  if (selectedVoice) return;
+  selectedVoice = pickVoice();
+  // Voices may load async
+  if (!selectedVoice) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      selectedVoice = pickVoice();
+    };
+  }
+}
+
+function randTemplate(templates) {
+  return templates[Math.floor(Math.random() * templates.length)];
+}
+
+// Speak a varied response. onDone called when utterance ends (or immediately if unsupported).
+function speakResponse(correct, answerLabel, timedOut, onDone) {
+  if (!window.speechSynthesis) { if (onDone) onDone(); return; }
+  ensureVoice();
   window.speechSynthesis.cancel();
+
+  let template;
+  if (timedOut) {
+    template = randTemplate(TIMEOUT_TEMPLATES);
+  } else if (correct) {
+    template = randTemplate(CORRECT_TEMPLATES);
+  } else {
+    template = randTemplate(WRONG_TEMPLATES);
+  }
+
+  const text = template.replace('{answer}', answerLabel);
   const utt = new SpeechSynthesisUtterance(text);
   utt.lang = 'en-GB';
-  utt.rate = 1.1;
-  utt.volume = 0.9;
+  utt.rate = 0.95;   // slightly slower — mature, measured pace
+  utt.pitch = 0.85;  // lower pitch = older male sound
+  utt.volume = 1.0;
+  if (selectedVoice) utt.voice = selectedVoice;
+  utt.onend = () => { if (onDone) onDone(); };
+  utt.onerror = () => { if (onDone) onDone(); };
   window.speechSynthesis.speak(utt);
 }
 
