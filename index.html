@@ -439,7 +439,7 @@ body {
   </div>
 
   <div style="text-align:center;margin-top:1.5rem;font-family:'Cinzel',serif;font-size:10px;color:var(--gold-dark);letter-spacing:0.08em;opacity:0.6;">
-    V4 &nbsp;&bull;&nbsp; 12th May 2026
+    V5 &nbsp;&bull;&nbsp; 12th May 2026
   </div>
 
 </div>
@@ -553,13 +553,13 @@ function normalise(str) {
 // Includes common STT mishearings e.g. "fire" for "four", "sex" for "six" etc.
 const VALUE_ALIASES = {
   'A':  ['ace','a','as','base','case','face','place','race','space','trace'],
-  '2':  ['two','2','to','too','tu','shoe','through','true'],
-  '3':  ['three','3','free','tree','see'],
-  '4':  ['four','4','for','fore','fire','fur','far','floor','force','fork','ford','fort','foe'],
-  '5':  ['five','5','hive','live','drive','jive','dive','vine'],
-  '6':  ['six','6','sex','sax','sick','mix','fix'],
+  '2':  ['two','2','to','too','tu','shoe','through','true','second'],
+  '3':  ['three','3','free','tree','see','third'],
+  '4':  ['four','4','for','fore','fire','fur','far','floor','force','fork','ford','fort','foe','fourth','forth'],
+  '5':  ['five','5','hive','live','drive','jive','dive','vine','fifth'],
+  '6':  ['six','6','sex','sax','sick','mix','fix','sixth'],
   '7':  ['seven','7','heaven','leaven','severn'],
-  '8':  ['eight','8','ate','hate','late','gate','fate','wait','rate','great'],
+  '8':  ['eight','8','ate','hate','late','gate','fate','wait','rate','great','eighth'],
   '9':  ['nine','9','fine','mine','line','wine','pine','dine','sign','shine'],
   '10': ['ten','10','then','den','hen','pen','men'],
   'J':  ['jack','j','jacks','jake','black','back','hack','lack','pack','rack','sack'],
@@ -593,26 +593,31 @@ function checkAnswer(transcript, card) {
   const heard = normalise(transcript);
 
   // ── Position answer ──
-  // Accept the number spoken in any form, anywhere in the phrase.
-  // e.g. "10", "ten", "it's ten", "position ten", "number ten", "it is ten",
-  //      "i think it's ten", "twenty three", "twenty-three" all match pos 23.
+  // Accept the number spoken in any form, anywhere in the utterance.
+  // "one", "1", "it's one", "position one", "number one", "i think it's one" all work.
   if (card.qtype === 'card-to-pos') {
     const n = card.pos;
     const numStr = String(n);
-    const wordStr = NUM_WORDS[n];
+    const wordStr = NUM_WORDS[n];       // e.g. "twenty three"
+    const heardClean = heard.replace(/[-]/g, ' ').replace(/\s+/g, ' ').trim();
 
-    // Digit match — whole word boundary so "1" doesn't match inside "21"
-    const digitRe = new RegExp('\\b' + numStr + '\\b');
-    if (digitRe.test(heard)) return true;
+    // Helper: does heardClean contain `w` as a whole word?
+    function hasWord(w) {
+      return new RegExp('(^|\\s)' + w + '(\\s|$)').test(heardClean);
+    }
 
-    // Word match — whole phrase e.g. "twenty three"
-    const wordRe = new RegExp('\\b' + wordStr.replace(' ', '\\s+') + '\\b');
-    if (wordRe.test(heard)) return true;
+    // Digit match as whole token
+    if (hasWord(numStr)) return true;
 
-    // Hyphenated / run-together variant e.g. "twentythree" or "twenty-three"
+    // Word match — single word numbers e.g. "one", "ten", "fifteen"
+    if (!wordStr.includes(' ') && hasWord(wordStr)) return true;
+
+    // Two-word numbers e.g. "twenty three" — both words must appear together
     if (wordStr.includes(' ')) {
-      const compact = wordStr.replace(/\s+/g, '');
-      if (heard.replace(/[-\s]/g, '').includes(compact)) return true;
+      // exact sequence anywhere
+      if (heardClean.includes(wordStr)) return true;
+      // compact run-together e.g. "twentythree"
+      if (heardClean.replace(/\s/g, '').includes(wordStr.replace(/\s/g, ''))) return true;
     }
 
     return false;
