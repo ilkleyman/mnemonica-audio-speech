@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#1a472a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Mnemonica" />
+<link rel="manifest" href="manifest.json" />
+<title>Mnemonica Flashcards</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --felt: #1a472a;
+  --felt-dark: #0d2818;
+  --felt-light: #1e5232;
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --gold-dark: #9a7a2e;
+  --cream: #f5ead8;
+  --cream-dim: #c9b99a;
+  --card-bg: #f5ead6;
+  --card-shadow: rgba(0,0,0,0.6);
+  --red: #c0392b;
+  --black: #1a1a2e;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Crimson Text', Georgia, serif;
+  background: var(--felt-dark);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, #2a6040 0%, transparent 70%),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(0,0,0,0.03) 10px,
+      rgba(0,0,0,0.03) 20px
+    );
+  min-height: 100vh;
+  padding: 1.5rem 1rem 3rem;
+  color: var(--cream);
+}
+
+.app { max-width: 560px; margin: 0 auto; }
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.header-title {
+  font-family: 'Cinzel', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 30px rgba(201,168,76,0.4);
+  margin-bottom: 2px;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  color: var(--cream-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: 'Cinzel', serif;
+  font-weight: 400;
+}
+
+.gold-rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-dark), var(--gold), var(--gold-dark), transparent);
+  margin: 0.75rem 0;
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+
+.mode-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.mode-toggle {
+  display: flex;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--gold-dark);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.mode-btn {
+  padding: 7px 12px;
+  font-size: 12px;
+  font-family: 'Cinzel', serif;
+  font-weight: 400;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--cream-dim);
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.mode-btn:not(:last-child) { border-right: 1px solid var(--gold-dark); }
+.mode-btn.active { background: rgba(201,168,76,0.2); color: var(--gold-light); }
+.mode-btn:hover:not(.active) { color: var(--cream); background: rgba(255,255,255,0.05); }
+
+.range-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--cream-dim);
+  font-family: 'Cinzel', serif;
+}
+
+.range-group input[type=number] {
+  width: 50px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-family: 'Cinzel', serif;
+  border: 1px solid var(--gold-dark);
+  border-radius: 5px;
+  background: rgba(0,0,0,0.3);
+  color: var(--gold-light);
+  text-align: center;
+}
+
+.range-group input[type=number]:focus { outline: none; border-color: var(--gold); }
+
+.delay-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--cream-dim);
+  font-family: 'Cinzel', serif;
+}
+
+.delay-group select {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: 'Cinzel', serif;
+  border: 1px solid var(--gold-dark);
+  border-radius: 5px;
+  background: rgba(0,0,0,0.3);
+  color: var(--gold-light);
+  cursor: pointer;
+}
+
+.wicked-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--gold-dark);
+  opacity: 0.4;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-family: 'Cinzel', serif;
+  border: 1px solid var(--gold-dark);
+  border-radius: 5px;
+  background: rgba(201,168,76,0.1);
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.action-btn:hover { background: rgba(201,168,76,0.25); border-color: var(--gold); }
+
+/* ── Progress ── */
+.progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 0 4px;
+}
+
+.progress { font-size: 13px; color: var(--cream-dim); font-family: 'Cinzel', serif; }
+.progress strong { color: var(--gold); font-weight: 600; }
+
+.round-badge {
+  font-size: 11px;
+  font-family: 'Cinzel', serif;
+  color: var(--gold-dark);
+  background: rgba(201,168,76,0.1);
+  border: 1px solid var(--gold-dark);
+  border-radius: 999px;
+  padding: 3px 10px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Card ── */
+.card-scene {
+  display: flex;
+  justify-content: center;
+  perspective: 1200px;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.7));
+}
+
+.card-inner {
+  position: relative;
+  width: 220px;
+  height: 320px;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.4,0,0.2,1);
+}
+
+.card-scene.flipped .card-inner { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* ── Card front (question face) ── */
+.card-front {
+  background: var(--card-bg);
+  border: 2px solid var(--gold-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 1rem;
+}
+
+.corner-tl {
+  position: absolute;
+  top: 10px; left: 12px;
+  display: flex; flex-direction: column; align-items: center; line-height: 1;
+}
+
+.corner-br {
+  position: absolute;
+  bottom: 10px; right: 12px;
+  display: flex; flex-direction: column; align-items: center; line-height: 1;
+  transform: rotate(180deg);
+}
+
+.corner-val {
+  font-family: 'Cinzel', serif;
+  font-size: 17px; font-weight: 700; line-height: 1;
+}
+
+.corner-suit { font-size: 14px; line-height: 1; }
+
+/* ── Card back (answer / question back) ── */
+.card-back {
+  border: 2px solid var(--gold);
+  transform: rotateY(180deg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px; padding: 1.5rem;
+  background: var(--card-bg);
+}
+
+.card-back.card-back-blue {
+  background: #1a2a4a;
+  border-color: var(--gold);
+}
+
+.card-back-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border-radius: 14px; overflow: hidden; pointer-events: none;
+}
+
+.card-back .corner-val {
+  font-family: 'Cinzel', serif;
+  font-size: 16px; font-weight: 700; line-height: 1; color: var(--black);
+  position: relative; z-index: 1;
+}
+
+.card-back.card-back-blue .corner-val { color: var(--gold-light); }
+
+.card-back .corner-suit { font-size: 13px; line-height: 1; position: relative; z-index: 1; }
+
+/* Card content */
+.suit-symbol, .corner-suit {
+  font-family: 'Segoe UI Symbol', 'Apple Symbols', 'Arial Unicode MS', Georgia, serif;
+  font-style: normal;
+  font-variant-emoji: text;
+  -webkit-font-feature-settings: "liga" off;
+  text-rendering: geometricPrecision;
+}
+.suit-symbol { font-size: 76px; line-height: 1; text-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.card-label { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 600; letter-spacing: 0.03em; }
+.card-sublabel { font-size: 12px; color: #888; font-style: italic; text-align: center; }
+
+.position-number {
+  font-family: 'Cinzel', serif;
+  font-size: 82px; font-weight: 700; line-height: 1;
+  color: var(--black); text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.phase-label {
+  font-family: 'Cinzel', serif;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #aaa; margin-bottom: 2px; text-align: center;
+}
+
+.card-back .phase-label { color: var(--gold-dark); }
+.card-back .card-label { color: var(--cream); }
+.card-back .position-number { color: var(--gold-light); text-shadow: 0 0 20px rgba(201,168,76,0.3); }
+.card-back .card-sublabel { color: var(--cream-dim); }
+
+.red { color: var(--red); }
+.card-back .red { color: #e87070; }
+.card-back .corner-suit.red, .card-back .corner-val.red { color: #e87070; }
+
+/* Idle card */
+.idle-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.idle-text { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(201,168,76,0.5); text-align: center; line-height: 2; }
+
+/* Card state classes */
+.card-idle {
+  background: #1a2a4a !important;
+  border-color: rgba(201,168,76,0.3) !important;
+  background-image: none !important;
+}
+
+.card-felt {
+  background: #1a2a4a !important;
+  border-color: var(--gold) !important;
+  background-image: none !important;
+}
+
+.card-cream {
+  background: var(--card-bg) !important;
+  border-color: var(--gold-dark) !important;
+  background-image: none !important;
+}
+
+/* Gold colour helpers */
+.gold { color: var(--gold-light); }
+.gold-dim { color: var(--gold-dark); }
+.gold-bright { color: var(--gold-light); text-shadow: 0 0 20px rgba(201,168,76,0.3); }
+
+/* ── Timer bar ── */
+.timer-wrap {
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.timer-bar {
+  height: 3px;
+  background: linear-gradient(to right, var(--gold-dark), var(--gold));
+  border-radius: 2px;
+  width: 100%;
+}
+
+/* ── Play button ── */
+.play-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.big-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 48px;
+  font-size: 15px;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.25s;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px rgba(201,168,76,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.big-btn:hover {
+  background: linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.1));
+  box-shadow: 0 0 30px rgba(201,168,76,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+  transform: translateY(-1px);
+}
+
+.big-btn:active { transform: translateY(0); }
+
+.big-btn.running {
+  border-color: #e74c3c;
+  color: #e87070;
+  background: linear-gradient(135deg, rgba(231,76,60,0.15), rgba(231,76,60,0.05));
+  box-shadow: 0 0 20px rgba(231,76,60,0.15);
+}
+
+/* ── Log section ── */
+.log-section {
+  border-top: 1px solid rgba(201,168,76,0.2);
+  padding-top: 1.25rem;
+}
+
+.log-title {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-transform: uppercase;
+}
+
+.log-clear {
+  font-size: 11px;
+  font-family: 'Crimson Text', serif;
+  color: var(--cream-dim);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+}
+
+.log-clear:hover { color: #e87070; }
+
+.session-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  flex: 1;
+  text-align: center;
+}
+
+.stat-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: var(--gold-dark);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.stat-val {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gold-light);
+}
+
+.log-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.log-card {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.log-date { font-size: 11px; color: var(--gold-dark); margin-bottom: 3px; font-family: 'Cinzel', serif; letter-spacing: 0.04em; }
+.log-time { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 600; color: var(--gold-light); }
+.log-sessions { font-size: 12px; color: var(--cream-dim); margin-top: 2px; font-style: italic; }
+
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--gold-dark);
+  display: inline-block; margin-right: 8px;
+  transition: all 0.3s;
+}
+
+.status-dot.active { background: #2ecc71; box-shadow: 0 0 8px rgba(46,204,113,0.6); }
+
+.sync-status { font-size: 11px; color: var(--gold-dark); margin-left: 8px; font-weight: 400; text-transform: none; letter-spacing: 0; font-family: 'Crimson Text', serif; }
+
+.no-log { font-size: 14px; color: var(--cream-dim); font-style: italic; }
+
+/* ── Idle card placeholder ── */
+.idle-suit { font-size: 52px; opacity: 0.12; color: var(--gold); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-title">✦ Mnemonica ✦</div>
+    <div class="header-subtitle">Stack Trainer</div>
+    <div class="gold-rule"></div>
+  </div>
+
+  <div class="controls">
+    <div class="mode-group">
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-ptc" onclick="toggleMode('pos-to-card')">Pos → Card</button>
+        <button class="mode-btn" id="btn-ctp" onclick="toggleMode('card-to-pos')">Card → Pos</button>
+        <button class="mode-btn" id="btn-bef" onclick="toggleMode('card-before')">Card Before</button>
+        <button class="mode-btn" id="btn-aft" onclick="toggleMode('card-after')">Card After</button>
+      </div>
+      <div class="settings-row">
+        <div class="range-group">
+          <span>Cards</span>
+          <input type="number" id="range-from" value="1" min="1" max="52" onchange="saveSettings()" />
+          <span>to</span>
+          <input type="number" id="range-to" value="52" min="1" max="52" onchange="saveSettings()" />
+        </div>
+        <div class="wicked-divider"></div>
+        <div class="delay-group">
+          <span>Delay</span>
+          <select id="delay-sel" onchange="onDelayChange()">
+            <option value="1000">1s</option>
+            <option value="1500">1.5s</option>
+            <option value="2000">2s</option>
+            <option value="3000">3s</option>
+            <option value="4000">4s</option>
+            <option value="5000" selected>5s</option>
+            <option value="7000">7s</option>
+            <option value="10000">10s</option>
+            <option value="wicked">Wicked Mode</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="play-row">
+    <button class="big-btn" id="play-btn" onclick="togglePlay()">
+      <svg id="play-icon" width="16" height="16" viewBox="0 0 16 16">
+        <polygon points="4,2 14,8 4,14" fill="currentColor"/>
+      </svg>
+      <span id="play-label">Start</span>
+    </button>
+  </div>
+
+  <div class="card-scene" id="card-scene">
+    <div class="card-inner" id="card-inner">
+      <div class="card-face card-front" id="front-face">
+        <div class="idle-back-pattern"></div>
+        <div class="idle-border-outer"></div>
+        <div class="idle-border-inner"></div>
+        <div class="idle-content">
+          <div class="idle-suit">♠</div>
+          <div class="idle-text">Press<br>Start<br>to Begin</div>
+        </div>
+      </div>
+      <div class="card-face card-back" id="back-face"></div>
+    </div>
+  </div>
+
+  <div class="timer-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+
+  <div class="progress-row">
+    <div class="progress" id="progress">Ready</div>
+    <div class="round-badge" id="round-badge">Round 1</div>
+  </div>
+
+  <div class="log-section">
+    <div class="log-title">
+      <span>
+        <span class="status-dot" id="session-dot"></span>Practice Log
+        <span class="sync-status" id="sync-status"></span>
+      </span>
+      <button class="log-clear" onclick="clearLog()">Clear log</button>
+    </div>
+    <div class="session-row">
+      <div class="stat"><div class="stat-label">This session</div><div class="stat-val" id="session-time">0:00</div></div>
+      <div class="stat"><div class="stat-label">Today</div><div class="stat-val" id="today-time">0:00</div></div>
+      <div class="stat"><div class="stat-label">All time</div><div class="stat-val" id="alltime-time">0:00</div></div>
+    </div>
+    <div class="log-grid" id="log-grid"><div class="no-log">No sessions yet — start drilling!</div></div>
+  </div>
+
+</div>
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+const AUDIO_BASE = 'https://ilkleyman.github.io/mnemonica-audio/audio/';
+const JSONBIN_KEY = '$2a$10$JVbcJI4T4huSZPjzJcrydOkeFpAfTqp1pdowSu4OQLRxClvgiwR42';
+const JSONBIN_API = 'https://api.jsonbin.io/v3/b';
+const CARD_BACK_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 220 320' preserveAspectRatio='xMidYMid slice'>
+  <defs>
+    <pattern id='cb-trellis' x='0' y='0' width='20' height='20' patternUnits='userSpaceOnUse'>
+      <path d='M10 0 L20 10 L10 20 L0 10 Z' fill='none' stroke='#5a4010' stroke-width='0.5' opacity='0.7'/>
+      <circle cx='10' cy='10' r='1.2' fill='#8a6a1e' opacity='0.5'/>
+      <circle cx='0' cy='0' r='0.8' fill='#8a6a1e' opacity='0.3'/>
+      <circle cx='20' cy='0' r='0.8' fill='#8a6a1e' opacity='0.3'/>
+      <circle cx='0' cy='20' r='0.8' fill='#8a6a1e' opacity='0.3'/>
+      <circle cx='20' cy='20' r='0.8' fill='#8a6a1e' opacity='0.3'/>
+    </pattern>
+    <pattern id='cb-trellis2' x='0' y='0' width='10' height='10' patternUnits='userSpaceOnUse'>
+      <path d='M5 0 L10 5 L5 10 L0 5 Z' fill='none' stroke='#c9a84c' stroke-width='0.3' opacity='0.18'/>
+    </pattern>
+  </defs>
+  <rect width='220' height='320' rx='14' fill='#1a2a4a'/>
+  <rect width='220' height='320' rx='14' fill='url(#cb-trellis)'/>
+  <rect width='220' height='320' rx='14' fill='url(#cb-trellis2)'/>
+  <rect x='1' y='1' width='218' height='318' rx='13' fill='none' stroke='#c9a84c' stroke-width='1.8'/>
+  <rect x='10' y='10' width='200' height='300' rx='9' fill='none' stroke='#c9a84c' stroke-width='0.7' opacity='0.55'/>
+  <rect x='17' y='17' width='186' height='286' rx='6' fill='none' stroke='#c9a84c' stroke-width='0.4' opacity='0.28'/>
+  <path d='M18,30 Q18,18 30,18' fill='none' stroke='#c9a84c' stroke-width='1.1' opacity='0.8'/>
+  <circle cx='21' cy='21' r='2.2' fill='#c9a84c' opacity='0.7'/>
+  <path d='M202,30 Q202,18 190,18' fill='none' stroke='#c9a84c' stroke-width='1.1' opacity='0.8'/>
+  <circle cx='199' cy='21' r='2.2' fill='#c9a84c' opacity='0.7'/>
+  <path d='M18,290 Q18,302 30,302' fill='none' stroke='#c9a84c' stroke-width='1.1' opacity='0.8'/>
+  <circle cx='21' cy='299' r='2.2' fill='#c9a84c' opacity='0.7'/>
+  <path d='M202,290 Q202,302 190,302' fill='none' stroke='#c9a84c' stroke-width='1.1' opacity='0.8'/>
+  <circle cx='199' cy='299' r='2.2' fill='#c9a84c' opacity='0.7'/>
+  <polygon points='110,28 114,32 110,36 106,32' fill='#c9a84c' opacity='0.5'/>
+  <polygon points='110,284 114,288 110,292 106,288' fill='#c9a84c' opacity='0.5'/>
+</svg>`;
+const BIN_ID = '69f0f3ffaaba8821974acdb9';
+
+const STACK = [
+  {pos:1,v:'4',s:'C'},{pos:2,v:'2',s:'H'},{pos:3,v:'7',s:'D'},{pos:4,v:'3',s:'C'},
+  {pos:5,v:'4',s:'H'},{pos:6,v:'6',s:'D'},{pos:7,v:'A',s:'S'},{pos:8,v:'5',s:'H'},
+  {pos:9,v:'9',s:'S'},{pos:10,v:'2',s:'S'},{pos:11,v:'Q',s:'H'},{pos:12,v:'3',s:'D'},
+  {pos:13,v:'Q',s:'C'},{pos:14,v:'8',s:'H'},{pos:15,v:'6',s:'S'},{pos:16,v:'5',s:'S'},
+  {pos:17,v:'9',s:'H'},{pos:18,v:'K',s:'C'},{pos:19,v:'2',s:'D'},{pos:20,v:'J',s:'H'},
+  {pos:21,v:'3',s:'S'},{pos:22,v:'8',s:'S'},{pos:23,v:'6',s:'H'},{pos:24,v:'10',s:'C'},
+  {pos:25,v:'5',s:'D'},{pos:26,v:'K',s:'D'},{pos:27,v:'2',s:'C'},{pos:28,v:'3',s:'H'},
+  {pos:29,v:'8',s:'D'},{pos:30,v:'5',s:'C'},{pos:31,v:'K',s:'S'},{pos:32,v:'J',s:'D'},
+  {pos:33,v:'8',s:'C'},{pos:34,v:'10',s:'S'},{pos:35,v:'K',s:'H'},{pos:36,v:'J',s:'C'},
+  {pos:37,v:'7',s:'S'},{pos:38,v:'10',s:'H'},{pos:39,v:'A',s:'D'},{pos:40,v:'4',s:'S'},
+  {pos:41,v:'7',s:'H'},{pos:42,v:'4',s:'D'},{pos:43,v:'A',s:'C'},{pos:44,v:'9',s:'C'},
+  {pos:45,v:'J',s:'S'},{pos:46,v:'Q',s:'D'},{pos:47,v:'7',s:'C'},{pos:48,v:'Q',s:'S'},
+  {pos:49,v:'10',s:'D'},{pos:50,v:'6',s:'C'},{pos:51,v:'A',s:'H'},{pos:52,v:'9',s:'D'}
+];
+
+const SUITS    = {H:'\u2665',D:'\u2666',C:'\u2663',S:'\u2660'};
+const RED      = ['H','D'];
+const VNAMES   = {A:'Ace','2':'Two','3':'Three','4':'Four','5':'Five','6':'Six','7':'Seven','8':'Eight','9':'Nine','10':'Ten',J:'Jack',Q:'Queen',K:'King'};
+const SNAMES   = {H:'Hearts',D:'Diamonds',C:'Clubs',S:'Spades'};
+
+/* Suit rendering — SVG paths for S and C to guarantee solid fill on all devices */
+const SUIT_PATHS = {
+  S: 'M50 5 C50 5 10 35 10 58 C10 75 25 82 40 76 C35 88 28 95 18 98 L82 98 C72 95 65 88 60 76 C75 82 90 75 90 58 C90 35 50 5 50 5Z',
+  C: 'M50 8 C38 8 28 18 28 30 C28 38 32 45 38 49 C30 47 22 50 18 58 C14 67 19 78 28 82 C34 85 41 83 46 79 C43 88 38 95 28 98 L72 98 C62 95 57 88 54 79 C59 83 66 85 72 82 C81 78 86 67 82 58 C78 50 70 47 62 49 C68 45 72 38 72 30 C72 18 62 8 50 8Z'
+};
+
+function suitSymbol(s, color, sizePx) {
+  if (SUIT_PATHS[s]) {
+    return `<svg viewBox="0 0 100 110" style="width:${sizePx}px;height:${sizePx*1.1}px;display:inline-block;vertical-align:middle;fill:${color}"><path d="${SUIT_PATHS[s]}"/></svg>`;
+  }
+  return `<span style="color:${color};font-size:${sizePx}px;line-height:1">${SUITS[s]}</span>`;
+}
+
+/* ── State ── */
+let activeModes = new Set(['pos-to-card']), deck = [], idx = 0, round = 1;
+let running = false, sessionId = 0;
+let t1 = null, t2 = null, t3 = null, t4 = null;  // all timers
+let cardPhrases = [], posPhrases = [], linkPhrases = [], introPhrases = [], beforePhrases = [], afterPhrases = [];
+let wickedTimer = null, wickedDelay = 5000;
+let sessionStart = null, sessionTimer = null, sessionSeconds = 0;
+let currentAudio = null;
+
+/* ── Flip sound ── */
+function playFlipSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.08, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.015));
+    }
+    const src = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    src.buffer = buf;
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+/* ── JSONBin ── */
+function syncStatus(msg) { document.getElementById('sync-status').textContent = msg; }
+
+async function loadBin() {
+  try {
+    const r = await fetch(`${JSONBIN_API}/${BIN_ID}/latest`, {
+      headers: { 'X-Access-Key': JSONBIN_KEY, 'X-Bin-Meta': 'false' }
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j.record || j;
+  } catch(e) { return null; }
+}
+
+async function saveBin(data) {
+  const r = await fetch(`${JSONBIN_API}/${BIN_ID}`, {
+    method: 'PUT',
+    headers: { 'X-Access-Key': JSONBIN_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error('update failed');
+}
+
+/* ── Audio ── */
+const audioCache = {};
+
+function preloadAudio(url) {
+  if (audioCache[url]) return;
+  const a = new Audio();
+  a.preload = 'auto';
+  a.src = url;
+  a.load();
+  audioCache[url] = true;
+}
+
+function tryLoad(url) {
+  return new Promise(resolve => {
+    const a = new Audio();
+    a.oncanplaythrough = () => resolve(true);
+    a.onerror = () => resolve(false);
+    a.src = url; a.load();
+  });
+}
+
+async function reloadPhrases() {
+  cardPhrases = []; posPhrases = []; linkPhrases = []; introPhrases = []; beforePhrases = []; afterPhrases = [];
+  for (let i = 1; i <= 20; i++) {
+    const url = AUDIO_BASE + 'card' + i + '.mp3';
+    if (await tryLoad(url)) { cardPhrases.push(url); preloadAudio(url); } else break;
+  }
+  for (let i = 1; i <= 20; i++) {
+    const url = AUDIO_BASE + 'position' + i + '.mp3';
+    if (await tryLoad(url)) { posPhrases.push(url); preloadAudio(url); } else break;
+  }
+  for (let i = 1; i <= 20; i++) {
+    const url = AUDIO_BASE + 'link' + i + '.mp3';
+    if (await tryLoad(url)) { linkPhrases.push(url); preloadAudio(url); } else break;
+  }
+  for (let i = 1; i <= 20; i++) {
+    const url = AUDIO_BASE + 'intro' + i + '.mp3';
+    if (await tryLoad(url)) { introPhrases.push(url); preloadAudio(url); } else break;
+  }
+  for (let i = 1; i <= 20; i++) {
+    const url = AUDIO_BASE + 'beforecard' + i + '.mp3';
+    if (await tryLoad(url)) { beforePhrases.push(url); preloadAudio(url); } else break;
+  }
+  for (let i = 1; i <= 20; i++) {
+    const url = AUDIO_BASE + 'aftercard' + i + '.mp3';
+    if (await tryLoad(url)) { afterPhrases.push(url); preloadAudio(url); } else break;
+  }
+  const VCODES = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  const SCODES = ['C','H','D','S'];
+  VCODES.forEach(v => SCODES.forEach(s => preloadAudio(AUDIO_BASE + 'card_' + v + s + '.mp3')));
+  for (let i = 1; i <= 52; i++) preloadAudio(AUDIO_BASE + 'pos_' + i + '.mp3');
+}
+
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function playChain(urls, onDone) {
+  const list = urls.filter(Boolean);
+  if (!list.length) { if (onDone) onDone(); return; }
+  let i = 0;
+  let active = true;
+  function next() {
+    if (!running || !active) return;
+    if (i >= list.length) { if (onDone) onDone(); return; }
+    const a = new Audio(list[i++]);
+    currentAudio = a;
+    a.onended = next;
+    a.onerror = () => { setTimeout(next, 100); }; // small delay on error
+    a.play().catch(() => { setTimeout(next, 100); });
+  }
+  next();
+  return () => { active = false; }; // return cancel function
+}
+
+function stopCurrentAudio() {
+  if (currentAudio) {
+    currentAudio.onended = null;
+    currentAudio.onerror = null;
+    currentAudio.pause();
+    try { currentAudio.src = ''; } catch(e) {}
+    currentAudio = null;
+  }
+}
+
+/* ── Deck ── */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getRange() {
+  let f = Math.max(1, Math.min(52, parseInt(document.getElementById('range-from').value) || 1));
+  let t = Math.max(f, Math.min(52, parseInt(document.getElementById('range-to').value) || 52));
+  return STACK.filter(c => c.pos >= f && c.pos <= t);
+}
+
+function buildDeck(cards) {
+  const modes = [...activeModes];
+  if (modes.length === 0) return shuffle(cards.map(c => ({...c, qtype:'pos-to-card'})));
+  let all = [];
+  modes.forEach(m => {
+    let filtered = cards;
+    if (m === 'card-before') filtered = cards.filter(c => c.pos > 1);
+    if (m === 'card-after')  filtered = cards.filter(c => c.pos < 52);
+    all = all.concat(filtered.map(c => ({...c, qtype: m})));
+  });
+  return shuffle(all);
+}
+
+function applyRange() {
+  if (running) stopPlay();
+  deck = buildDeck(getRange()); idx = 0; round = 1;
+  updateProgress(); resetFaces();
+  saveSettings();
+}
+
+function toggleMode(m) {
+  const btnMap = {'pos-to-card':'ptc','card-to-pos':'ctp','card-before':'bef','card-after':'aft'};
+  if (activeModes.has(m)) {
+    if (activeModes.size === 1) return; // always keep at least one active
+    activeModes.delete(m);
+    document.getElementById('btn-' + btnMap[m]).classList.remove('active');
+  } else {
+    activeModes.add(m);
+    document.getElementById('btn-' + btnMap[m]).classList.add('active');
+  }
+  if (running) stopPlay();
+  deck = buildDeck(getRange()); idx = 0; round = 1;
+  updateProgress(); resetFaces();
+  saveSettings();
+}
+
+/* ── Card rendering ── */
+function resetFaces() {
+  document.getElementById('card-scene').classList.remove('flipped');
+  const f = document.getElementById('front-face');
+  f.className = 'card-face card-front card-idle';
+  f.innerHTML = `
+    <div class="card-back-svg">${CARD_BACK_SVG}</div>
+    <div class="idle-content"><div class="idle-text">Press<br>Start<br>to Begin</div></div>`;
+  document.getElementById('back-face').innerHTML = '';
+}
+
+function updateProgress() {
+  const total = deck.length;
+  const curr = running ? Math.min(idx + 1, total) : 0;
+  document.getElementById('progress').innerHTML = running
+    ? `Card <strong>${curr}</strong> of <strong>${total}</strong>`
+    : `<strong>${total}</strong> cards ready`;
+  document.getElementById('round-badge').textContent = `Round ${round}`;
+}
+
+function cardColor(s) { return RED.includes(s) ? '#c0392b' : '#1a1a2e'; }
+
+function renderFront(card) {
+  const f = document.getElementById('front-face');
+  const color = cardColor(card.s);
+  if (card.qtype === 'pos-to-card') {
+    f.className = 'card-face card-front card-felt';
+    f.innerHTML = `
+      <div class="card-back-svg">${CARD_BACK_SVG}</div>
+      <div style="position:relative;z-index:1;text-align:center">
+        <div class="phase-label gold-dim">Position</div>
+        <div class="position-number gold-bright">${card.pos}</div>
+      </div>`;
+  } else if (card.qtype === 'card-before' || card.qtype === 'card-after') {
+    f.className = 'card-face card-front card-cream';
+    const suit_lg = suitSymbol(card.s, color, 72);
+    const suit_sm = suitSymbol(card.s, color, 15);
+    const lbl = card.qtype === 'card-before' ? 'What card comes before?' : 'What card comes after?';
+    f.innerHTML = `
+      <div class="corner-tl">
+        <div class="corner-val" style="color:${color}">${card.v}</div>
+        <div>${suit_sm}</div>
+      </div>
+      <div class="corner-br">
+        <div class="corner-val" style="color:${color}">${card.v}</div>
+        <div>${suit_sm}</div>
+      </div>
+      <div class="phase-label">${lbl}</div>
+      ${suit_lg}
+      <div class="card-label" style="color:${color}">${VNAMES[card.v]} of ${SNAMES[card.s]}</div>`;
+  } else {
+    f.className = 'card-face card-front card-cream';
+    const suit_lg = suitSymbol(card.s, color, 72);
+    const suit_sm = suitSymbol(card.s, color, 15);
+    f.innerHTML = `
+      <div class="corner-tl">
+        <div class="corner-val" style="color:${color}">${card.v}</div>
+        <div>${suit_sm}</div>
+      </div>
+      <div class="corner-br">
+        <div class="corner-val" style="color:${color}">${card.v}</div>
+        <div>${suit_sm}</div>
+      </div>
+      <div class="phase-label">What position?</div>
+      ${suit_lg}
+      <div class="card-label" style="color:${color}">${VNAMES[card.v]} of ${SNAMES[card.s]}</div>`;
+  }
+}
+
+function renderBack(card) {
+  const b = document.getElementById('back-face');
+  // For card-before: answer is the card at pos-1; for card-after: pos+1
+  let ansCard = card;
+  if (card.qtype === 'card-before') ansCard = STACK.find(c => c.pos === card.pos - 1) || card;
+  if (card.qtype === 'card-after')  ansCard = STACK.find(c => c.pos === card.pos + 1) || card;
+  const color = cardColor(ansCard.s);
+  if (card.qtype === 'pos-to-card' || card.qtype === 'card-before' || card.qtype === 'card-after') {
+    b.className = 'card-face card-back';
+    const suit_lg = suitSymbol(ansCard.s, color, 72);
+    const suit_sm = suitSymbol(ansCard.s, color, 15);
+    b.innerHTML = `
+      <div class="corner-tl">
+        <div class="corner-val" style="color:${color}">${ansCard.v}</div>
+        <div>${suit_sm}</div>
+      </div>
+      <div class="corner-br">
+        <div class="corner-val" style="color:${color}">${ansCard.v}</div>
+        <div>${suit_sm}</div>
+      </div>
+      ${suit_lg}
+      <div class="card-label" style="color:${color}">${VNAMES[ansCard.v]} of ${SNAMES[ansCard.s]}</div>`;
+  } else {
+    b.className = 'card-face card-back card-back-blue';
+    b.innerHTML = `
+      <div class="card-back-svg">${CARD_BACK_SVG}</div>
+      <div style="position:relative;z-index:1;text-align:center">
+        <div class="phase-label" style="color:var(--gold-dark)">Position</div>
+        <div class="position-number" style="color:var(--gold-light);text-shadow:0 0 20px rgba(201,168,76,0.3)">${card.pos}</div>
+      </div>`;
+  }
+}
+
+/* ── Timer bar ── */
+function animateBar(ms) {
+  const bar = document.getElementById('timer-bar');
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    bar.style.transition = `width ${ms}ms linear`;
+    bar.style.width = '0%';
+  }));
+}
+
+function stopBar() {
+  const bar = document.getElementById('timer-bar');
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+}
+
+/* ── Audio chain ── */
+function playQuestion(card, onDone) {
+  const isFirst = idx === 0 && round === 1;
+  const prefix = isFirst
+    ? (introPhrases.length ? rand(introPhrases) : null)
+    : (linkPhrases.length ? rand(linkPhrases) : null);
+  const cardFile = AUDIO_BASE + 'card_' + card.v + card.s + '.mp3';
+  if (card.qtype === 'pos-to-card') {
+    playChain([prefix, rand(cardPhrases.length ? cardPhrases : [null]), AUDIO_BASE + 'pos_' + card.pos + '.mp3'], onDone);
+  } else if (card.qtype === 'card-before') {
+    playChain([prefix, rand(beforePhrases.length ? beforePhrases : [null]), cardFile], onDone);
+  } else if (card.qtype === 'card-after') {
+    playChain([prefix, rand(afterPhrases.length ? afterPhrases : [null]), cardFile], onDone);
+  } else {
+    playChain([prefix, rand(posPhrases.length ? posPhrases : [null]), cardFile], onDone);
+  }
+}
+
+function playAnswer(card, onDone) {
+  if (card.qtype === 'pos-to-card') {
+    playChain([AUDIO_BASE + 'card_' + card.v + card.s + '.mp3'], onDone);
+  } else if (card.qtype === 'card-before') {
+    const ans = STACK.find(c => c.pos === card.pos - 1);
+    if (ans) playChain([AUDIO_BASE + 'card_' + ans.v + ans.s + '.mp3'], onDone);
+    else if (onDone) onDone();
+  } else if (card.qtype === 'card-after') {
+    const ans = STACK.find(c => c.pos === card.pos + 1);
+    if (ans) playChain([AUDIO_BASE + 'card_' + ans.v + ans.s + '.mp3'], onDone);
+    else if (onDone) onDone();
+  } else {
+    playChain([AUDIO_BASE + 'pos_' + card.pos + '.mp3'], onDone);
+  }
+}
+
+/* ── Wicked Mode ── */
+function isWicked() { return document.getElementById('delay-sel').value === 'wicked'; }
+
+function onDelayChange() {
+  saveSettings();
+}
+
+function startWicked() {
+  wickedDelay = 7000;
+  wickedTimer = setInterval(() => {
+    wickedDelay = Math.max(1000, wickedDelay - 500);
+  }, 60000);
+}
+
+function stopWicked() {
+  clearInterval(wickedTimer); wickedTimer = null;
+}
+
+function getCurrentDelay() {
+  if (isWicked() && running) return wickedDelay;
+  const val = parseInt(document.getElementById('delay-sel').value);
+  return isNaN(val) ? 5000 : val;
+}
+
+/* ── Playback ── */
+function clearAllTimers() {
+  clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
+  t1 = t2 = t3 = t4 = null;
+}
+
+function showCard() {
+  if (!running) return;
+  clearAllTimers();
+  const mySession = sessionId;
+  const card = deck[idx];
+  const delay = getCurrentDelay();
+  const answerGap = 1500;
+  const scene = document.getElementById('card-scene');
+
+  // Unflip back to question side
+  scene.classList.remove('flipped');
+
+  // Swap content at midpoint of unflip (card is edge-on, invisible)
+  t1 = setTimeout(() => {
+    if (!running || sessionId !== mySession) return;
+    renderFront(card);
+    renderBack(card);
+    updateProgress();
+  }, 325);
+
+  // Once unflip completes, play question audio
+  t2 = setTimeout(() => {
+    if (!running || sessionId !== mySession) return;
+    playQuestion(card, () => {
+      if (!running || sessionId !== mySession) return;
+      animateBar(delay);
+      // After thinking delay, flip to answer
+      t3 = setTimeout(() => {
+        if (!running || sessionId !== mySession) return;
+        playFlipSound();
+        scene.classList.add('flipped');
+        playAnswer(card, () => {
+          if (!running || sessionId !== mySession) return;
+          animateBar(answerGap);
+          // After answer gap, move to next card
+          t4 = setTimeout(() => {
+            if (!running || sessionId !== mySession) return;
+            idx++;
+            if (idx >= deck.length) { round++; deck = buildDeck(getRange()); idx = 0; }
+            showCard();
+          }, answerGap);
+        });
+      }, delay);
+    });
+  }, 680);
+}
+
+function togglePlay() { if (running) stopPlay(); else startPlay(); }
+
+function startPlay() {
+  running = true; sessionId++;
+  deck = buildDeck(getRange()); idx = 0; round = 1;
+  document.getElementById('play-btn').classList.add('running');
+  document.getElementById('play-icon').innerHTML = '<rect x="3" y="2" width="4" height="12" rx="1" fill="currentColor"/><rect x="9" y="2" width="4" height="12" rx="1" fill="currentColor"/>';
+  document.getElementById('play-label').textContent = 'Stop';
+  document.getElementById('session-dot').classList.add('active');
+  if (isWicked()) startWicked();
+  sessionStart = Date.now(); sessionSeconds = 0;
+  sessionTimer = setInterval(tickSession, 1000);
+  showCard();
+}
+
+function stopPlay() {
+  running = false; sessionId++;
+  clearAllTimers();
+  stopCurrentAudio(); stopBar();
+  if (isWicked()) stopWicked();
+  clearInterval(sessionTimer);
+  document.getElementById('play-btn').classList.remove('running');
+  document.getElementById('play-icon').innerHTML = '<polygon points="4,2 14,8 4,14" fill="currentColor"/>';
+  document.getElementById('play-label').textContent = 'Start';
+  document.getElementById('session-dot').classList.remove('active');
+  if (sessionStart) {
+    const secs = Math.floor((Date.now() - sessionStart) / 1000);
+    if (secs > 5) saveSession(secs);
+  }
+  sessionStart = null; sessionSeconds = 0;
+  document.getElementById('session-time').textContent = '0:00';
+  resetFaces(); idx = 0; round = 1; updateProgress();
+}
+
+/* ── Session timer ── */
+function tickSession() {
+  sessionSeconds++;
+  document.getElementById('session-time').textContent = formatTime(sessionSeconds);
+}
+
+function formatTime(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+/* ── Practice log ── */
+async function saveSession(secs) {
+  syncStatus('saving...');
+  try {
+    let data = await loadBin() || {};
+    const key = todayKey();
+    if (!data[key]) data[key] = {total: 0, sessions: 0};
+    data[key].total += secs; data[key].sessions += 1;
+    await saveBin(data);
+    syncStatus('saved ✓'); setTimeout(() => syncStatus(''), 3000);
+    renderLog(data);
+  } catch(e) { syncStatus('sync failed'); }
+}
+
+async function renderLog(data) {
+  if (!data) { syncStatus('loading...'); data = await loadBin(); syncStatus(''); }
+  if (!data) {
+    document.getElementById('log-grid').innerHTML = '<div class="no-log">No sessions yet — start drilling!</div>';
+    document.getElementById('today-time').textContent = '0:00';
+    document.getElementById('alltime-time').textContent = '0:00';
+    return;
+  }
+  let allTime = 0, todayTotal = 0;
+  const today = todayKey();
+  const entries = Object.entries(data)
+    .filter(([k]) => /^\d{4}-\d{2}-\d{2}$/.test(k))
+    .map(([k, v]) => ({date: k, ...v}))
+    .sort((a, b) => b.date.localeCompare(a.date));
+  entries.forEach(e => { allTime += e.total; if (e.date === today) todayTotal = e.total; });
+  document.getElementById('today-time').textContent = formatTime(todayTotal);
+  document.getElementById('alltime-time').textContent = formatTime(allTime);
+  const grid = document.getElementById('log-grid');
+  if (!entries.length) { grid.innerHTML = '<div class="no-log">No sessions yet — start drilling!</div>'; return; }
+  grid.innerHTML = entries.slice(0, 14).map(e => {
+    const d = new Date(e.date + 'T00:00:00');
+    const label = d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+    return `<div class="log-card"><div class="log-date">${label}</div><div class="log-time">${formatTime(e.total)}</div><div class="log-sessions">${e.sessions} session${e.sessions !== 1 ? 's' : ''}</div></div>`;
+  }).join('');
+}
+
+async function clearLog() {
+  if (!confirm('Clear all practice history?')) return;
+  try { await saveBin({}); renderLog({}); } catch(e) { syncStatus('clear failed'); }
+}
+
+/* ── Settings persistence ── */
+function saveSettings() {
+  const s = {
+    modes: [...activeModes],
+    from: document.getElementById('range-from').value,
+    to: document.getElementById('range-to').value,
+    delay: document.getElementById('delay-sel').value
+  };
+  localStorage.setItem('mnemonica_settings', JSON.stringify(s));
+}
+
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem('mnemonica_settings'));
+    if (!s) return;
+    if (s.from) document.getElementById('range-from').value = s.from;
+    if (s.to) document.getElementById('range-to').value = s.to;
+    if (s.delay) document.getElementById('delay-sel').value = s.delay;
+    if (s.modes && Array.isArray(s.modes) && s.modes.length > 0) {
+      activeModes = new Set(s.modes);
+      const btnMap = {'pos-to-card':'ptc','card-to-pos':'ctp','card-before':'bef','card-after':'aft'};
+      ['ptc','ctp','bef','aft'].forEach(id => document.getElementById('btn-' + id).classList.remove('active'));
+      activeModes.forEach(m => {
+        if (btnMap[m]) document.getElementById('btn-' + btnMap[m]).classList.add('active');
+      });
+    }
+  } catch(e) {}
+}
+
+/* ── Init ── */
+loadSettings();
+deck = buildDeck(getRange());
+updateProgress();
+reloadPhrases();
+renderLog();
+</script>
+</body>
+</html>
